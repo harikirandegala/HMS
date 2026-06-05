@@ -1,0 +1,6 @@
+{
+  "name": "MediFlow HMS",
+  "description": "A professional, full-featured Hospital Management System with multi-role dashboards for Patients, Doctors, and Administrators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
