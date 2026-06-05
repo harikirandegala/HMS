@@ -20,13 +20,25 @@ interface PatientPortalProps {
   user: any;
   formatPrice: (amount: number) => string;
   activeTab: string;
+  onUserUpdate: (updatedUserFields: Partial<any>) => void;
 }
 
-export default function PatientPortal({ token, user, formatPrice, activeTab }: PatientPortalProps) {
+export default function PatientPortal({ token, user, formatPrice, activeTab, onUserUpdate }: PatientPortalProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+
+  // Profile edit states
+  const [profileName, setProfileName] = useState(user.fullName);
+  const [profileDob, setProfileDob] = useState('');
+  const [profileAge, setProfileAge] = useState('');
+  const [profileOccupation, setProfileOccupation] = useState('');
+  const [profileGender, setProfileGender] = useState('Male');
+  const [profileAddress, setProfileAddress] = useState('');
+  const [profileInsuranceNo, setProfileInsuranceNo] = useState('');
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
+  const [patientProfile, setPatientProfile] = useState<any | null>(null);
 
   // Appointment Creator states
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
@@ -45,19 +57,65 @@ export default function PatientPortal({ token, user, formatPrice, activeTab }: P
   const fetchPatientData = async () => {
     try {
       const headers = { 'Authorization': `Bearer ${token}` };
-      const [resApts, resDocs, resRecords, resInvoices] = await Promise.all([
+      const [resApts, resDocs, resRecords, resInvoices, resProfile] = await Promise.all([
         fetch('/api/appointments', { headers }),
         fetch('/api/doctors', { headers }),
         fetch(`/api/patients/${user.id}/records`, { headers }),
-        fetch('/api/invoices', { headers })
+        fetch('/api/invoices', { headers }),
+        fetch(`/api/patients/${user.id}`, { headers })
       ]);
 
       if (resApts.ok) setAppointments(await resApts.json());
       if (resDocs.ok) setDoctors(await resDocs.json());
       if (resRecords.ok) setMedicalRecords(await resRecords.json());
       if (resInvoices.ok) setInvoices(await resInvoices.json());
+      if (resProfile.ok) {
+        const data = await resProfile.json();
+        setPatientProfile(data);
+        setProfileName(data.fullName || '');
+        setProfileDob(data.dob || '');
+        setProfileAge(data.age !== undefined && data.age !== null ? data.age.toString() : '');
+        setProfileOccupation(data.occupation || '');
+        setProfileGender(data.gender || 'Male');
+        setProfileAddress(data.address || '');
+        setProfileInsuranceNo(data.insuranceNo || '');
+      }
     } catch (e) {
       console.error('Error fetching patient data feeds', e);
+    }
+  };
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileMessage(null);
+    try {
+      const response = await fetch(`/api/patients/${user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          fullName: profileName,
+          dob: profileDob,
+          gender: profileGender,
+          age: profileAge ? parseInt(profileAge, 10) : undefined,
+          occupation: profileOccupation,
+          address: profileAddress,
+          insuranceNo: profileInsuranceNo
+        })
+      });
+
+      if (response.ok) {
+        setProfileMessage('success:Personal details updated successfully.');
+        fetchPatientData();
+        onUserUpdate({ fullName: profileName });
+      } else {
+        const data = await response.json();
+        setProfileMessage(`error:${data.error || 'Server error saving profile.'}`);
+      }
+    } catch (err: any) {
+      setProfileMessage(`error:${err.message}`);
     }
   };
 
@@ -160,6 +218,7 @@ export default function PatientPortal({ token, user, formatPrice, activeTab }: P
   const showAppointments = showAll || activeTab === 'appointments';
   const showRecords = showAll || activeTab === 'records';
   const showBilling = showAll || activeTab === 'billing';
+  const showProfile = activeTab === 'profile';
 
   return (
     <div className="space-y-8 animate-fade-in font-sans text-[#1E293B] dark:text-slate-100">
@@ -196,6 +255,56 @@ export default function PatientPortal({ token, user, formatPrice, activeTab }: P
         {showAppointments && (
           <div className={showAll ? "lg:col-span-5 space-y-6" : "lg:col-span-12 max-w-3xl mx-auto w-full space-y-6"}>
           
+          {/* Patient Personal Details Summary card (Main Dashboard Only) */}
+          {showAll && (
+            <div className="bg-white dark:bg-[#111827] p-6 rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm relative overflow-hidden transition-colors">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[#0D9488]/5 dark:bg-[#0D9488]/10 rounded-bl-full pointer-events-none" />
+              
+              <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-850 pb-3 mb-4">
+                <User className="text-[#0D9488] h-5 w-5" />
+                <h3 className="font-bold text-sm tracking-wide text-slate-900 dark:text-white">My Personal Profile</h3>
+              </div>
+
+              <div className="space-y-3.5 text-xs">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-550 uppercase font-semibold">Full Name</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{patientProfile?.fullName || user.fullName}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-550 uppercase font-semibold">Age / Birth Date</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                      {patientProfile?.age ? `${patientProfile.age} yrs` : 'N/A'} {patientProfile?.dob ? `(${patientProfile.dob})` : ''}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-550 uppercase font-semibold">Occupation</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{patientProfile?.occupation || 'N/A'}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-550 uppercase font-semibold">Registered Gender</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{patientProfile?.gender || 'N/A'}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-550 uppercase font-semibold">Home Address</span>
+                  <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{patientProfile?.address || 'N/A'}</p>
+                </div>
+
+                {patientProfile?.insuranceNo && (
+                  <div>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-550 uppercase font-semibold">Insurance Policy Card</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5 font-mono">{patientProfile.insuranceNo}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Appointment booking module card */}
           <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
             <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-850 pb-3">
@@ -456,6 +565,126 @@ export default function PatientPortal({ token, user, formatPrice, activeTab }: P
     )}
 
   </div>
+
+      {/* Patient Profile Editor Page */}
+      {showProfile && (
+        <div className="max-w-2xl mx-auto w-full bg-white dark:bg-[#111827] p-6 rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm transition-colors">
+          <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-850 pb-3 mb-6">
+            <User className="text-[#0D9488] h-5 w-5" />
+            <h3 className="font-bold text-base text-slate-900 dark:text-white">Edit Personal Details</h3>
+          </div>
+
+          {profileMessage && (
+            <div id="profile-alert" className={`mb-6 p-3 text-xs font-semibold rounded-md ${
+              profileMessage.startsWith('success') ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-450' : 'bg-red-50 dark:bg-red-500/10 text-[#F43F5E] dark:text-[#F43F5E]'
+            }`}>
+              {profileMessage.split(':')[1]}
+            </div>
+          )}
+
+          <form onSubmit={handleProfileSubmit} className="space-y-4 text-xs font-semibold text-slate-700 dark:text-slate-350">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="profile-name" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Full Name</label>
+                <input
+                  id="profile-name"
+                  type="text"
+                  value={profileName}
+                  onChange={(e) => setProfileName(e.target.value)}
+                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488]"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="profile-age" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Age</label>
+                <input
+                  id="profile-age"
+                  type="number"
+                  value={profileAge}
+                  onChange={(e) => setProfileAge(e.target.value)}
+                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488]"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="profile-dob" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Date of Birth</label>
+                <input
+                  id="profile-dob"
+                  type="date"
+                  value={profileDob}
+                  onChange={(e) => setProfileDob(e.target.value)}
+                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="profile-gender" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Registered Gender</label>
+                <select
+                  id="profile-gender"
+                  value={profileGender}
+                  onChange={(e) => setProfileGender(e.target.value)}
+                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] cursor-pointer"
+                  required
+                >
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Non-binary">Non-binary</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="profile-occupation" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Occupation</label>
+                <input
+                  id="profile-occupation"
+                  type="text"
+                  placeholder="e.g. Software Engineer"
+                  value={profileOccupation}
+                  onChange={(e) => setProfileOccupation(e.target.value)}
+                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488]"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="profile-insurance" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Insurance policy card number (optional)</label>
+                <input
+                  id="profile-insurance"
+                  type="text"
+                  placeholder="e.g. INS-48291"
+                  value={profileInsuranceNo}
+                  onChange={(e) => setProfileInsuranceNo(e.target.value)}
+                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="profile-address" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Home Address</label>
+              <input
+                id="profile-address"
+                type="text"
+                placeholder="e.g. 123 Main St, Springfield"
+                value={profileAddress}
+                onChange={(e) => setProfileAddress(e.target.value)}
+                className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488]"
+              />
+            </div>
+
+            <button
+              id="btn-save-profile"
+              type="submit"
+              className="w-full py-2.5 bg-[#0D9488] hover:bg-[#0b7e73] text-white font-bold text-sm rounded-xl transition-all cursor-pointer mt-4"
+            >
+              Save Profile Details
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* SECURE STRIPE CHECKOUT SIMULATED MODAL */}
       {activePaymentInvoice && (

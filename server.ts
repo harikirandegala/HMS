@@ -60,6 +60,9 @@ interface DbSchema {
     gender: string;
     insuranceNo: string;
     medicalHistorySummary?: string;
+    age?: number;
+    occupation?: string;
+    address?: string;
   }[];
   doctors: {
     id: string;
@@ -180,7 +183,10 @@ const initialSeed: DbSchema = {
       dob: '1979-10-12',
       gender: 'Male',
       insuranceNo: 'INS-99482-B',
-      medicalHistorySummary: 'Mild hypertension, chronic dry skin symptoms, non-smoker.'
+      medicalHistorySummary: 'Mild hypertension, chronic dry skin symptoms, non-smoker.',
+      age: 47,
+      occupation: 'Journalist',
+      address: '15 Country Lane, Cottington'
     }
   ],
   appointments: [
@@ -446,6 +452,94 @@ app.get('/api/patients', (req, res) => {
     return res.status(403).json({ error: 'Access restricted to medical personnel only.' });
   }
   res.json(dbData.patients);
+});
+
+// GET /api/patients/:id (Requires session user matching the patient ID, or doctor/admin role)
+app.get('/api/patients/:id', (req, res) => {
+  const user = authenticateSimulatedUser(req.headers);
+  if (!user) {
+    return res.status(401).json({ error: 'Session token expired or missing.' });
+  }
+
+  const patient = dbData.patients.find(p => p.id === req.params.id);
+  if (!patient) {
+    return res.status(404).json({ error: 'Patient account not found.' });
+  }
+
+  if (user.role !== 'admin' && user.role !== 'doctor' && user.id !== req.params.id) {
+    return res.status(403).json({ error: 'Access restricted to authorized personnel only.' });
+  }
+
+  res.json(patient);
+});
+
+// PUT /api/patients/:id (Requires session user matching the patient ID, or doctor/admin role)
+app.put('/api/patients/:id', (req, res) => {
+  const user = authenticateSimulatedUser(req.headers);
+  if (!user) {
+    return res.status(401).json({ error: 'Session token expired or missing.' });
+  }
+
+  const patientIndex = dbData.patients.findIndex(p => p.id === req.params.id);
+  if (patientIndex === -1) {
+    return res.status(404).json({ error: 'Patient account not found.' });
+  }
+
+  if (user.role !== 'admin' && user.role !== 'doctor' && user.id !== req.params.id) {
+    return res.status(403).json({ error: 'Access restricted.' });
+  }
+
+  const patient = dbData.patients[patientIndex];
+  const { fullName, dob, gender, insuranceNo, age, occupation, address } = req.body;
+
+  const updatedPatient = {
+    ...patient,
+    fullName: fullName !== undefined ? fullName : patient.fullName,
+    dob: dob !== undefined ? dob : patient.dob,
+    gender: gender !== undefined ? gender : patient.gender,
+    insuranceNo: insuranceNo !== undefined ? insuranceNo : patient.insuranceNo,
+    age: age !== undefined ? (age ? parseInt(age, 10) : undefined) : patient.age,
+    occupation: occupation !== undefined ? occupation : patient.occupation,
+    address: address !== undefined ? address : patient.address
+  };
+
+  const users = dbData.users.map(u => {
+    if (u.id === req.params.id) {
+      return {
+        ...u,
+        fullName: fullName !== undefined ? fullName : u.fullName
+      };
+    }
+    return u;
+  });
+
+  const patients = [...dbData.patients];
+  patients[patientIndex] = updatedPatient;
+
+  const appointments = dbData.appointments.map(a => {
+    if (a.patientId === req.params.id && fullName !== undefined) {
+      return {
+        ...a,
+        patientName: fullName
+      };
+    }
+    return a;
+  });
+
+  const invoices = dbData.invoices.map(inv => {
+    if (inv.patientId === req.params.id && fullName !== undefined) {
+      return {
+        ...inv,
+        patientName: fullName
+      };
+    }
+    return inv;
+  });
+
+  saveDatabase({ ...dbData, users, patients, appointments, invoices });
+  addAudit(user.fullName, 'UPDATE_PATIENT_PROFILE', `Updated profile details for patient ID ${req.params.id}`);
+
+  res.json(updatedPatient);
 });
 
 // GET /api/appointments (RBAC Filtered)

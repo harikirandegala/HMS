@@ -18,6 +18,9 @@ export interface Patient {
   gender: string;
   insuranceNo?: string;
   medicalHistorySummary?: string;
+  age?: number;
+  occupation?: string;
+  address?: string;
 }
 
 export interface Doctor {

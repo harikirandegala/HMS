@@ -70,7 +70,18 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
 
   useEffect(() => {
     fetchDoctorData();
+    const interval = setInterval(fetchDoctorData, 8000);
+    return () => clearInterval(interval);
   }, [token]);
+
+  useEffect(() => {
+    if (selectedPatientId) {
+      const pt = patients.find(p => p.id === selectedPatientId);
+      if (pt) {
+        setSelectedPatient(pt);
+      }
+    }
+  }, [patients, selectedPatientId]);
 
   // Handle appointment state change (Reject, Confirm, Complete)
   const changeAptStatus = async (id: string, newStatus: string) => {
@@ -320,7 +331,9 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                   >
                     <div>
                       <h5 className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-[#0D9488] transition-colors">{pt.fullName}</h5>
-                      <p className="text-[10px] text-zinc-400 dark:text-slate-500 font-semibold font-mono mt-0.5">Insurance CardID: {pt.insuranceNo}</p>
+                      <p className="text-[10px] text-zinc-400 dark:text-slate-500 font-semibold font-mono mt-0.5">
+                        {pt.age ? `${pt.age} yrs` : 'N/A'} • {pt.occupation || 'No Occupation'}
+                      </p>
                     </div>
                     <span className="text-[9px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-0.5 px-2 rounded-md uppercase">View File</span>
                   </button>
@@ -355,16 +368,26 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                 
                 <div className="grid grid-cols-3 gap-4 mt-4 text-xs">
                   <div>
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Birth Register Date</span>
-                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedPatient.dob}</p>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Age / Birth Date</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">
+                      {selectedPatient.age ? `${selectedPatient.age} yrs` : 'N/A'} {selectedPatient.dob ? `(${selectedPatient.dob})` : ''}
+                    </p>
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Registered Gender</span>
                     <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedPatient.gender}</p>
                   </div>
                   <div>
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Occupation</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedPatient.occupation || 'N/A'}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Home Address</span>
+                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedPatient.address || 'N/A'}</p>
+                  </div>
+                  <div>
                     <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Hospital policy insurance</span>
-                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedPatient.insuranceNo}</p>
+                    <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{selectedPatient.insuranceNo || 'N/A'}</p>
                   </div>
                 </div>
 

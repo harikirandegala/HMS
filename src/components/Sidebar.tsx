@@ -10,7 +10,8 @@ import {
   LogOut,
   Settings,
   Sun,
-  Moon
+  Moon,
+  User as UserIcon
 } from 'lucide-react';
 import { User } from '../types';
 
@@ -58,6 +59,12 @@ export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme
       label: 'Registered Patients',
       icon: Users,
       roles: ['doctor']
+    },
+    {
+      id: 'profile',
+      label: 'My Profile',
+      icon: UserIcon,
+      roles: ['patient']
     },
     {
       id: 'settings',
