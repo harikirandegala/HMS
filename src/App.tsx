@@ -99,7 +99,7 @@ export default function App() {
     switch (activeTab) {
       case 'dashboard':
         if (user.role === 'admin') {
-          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} setActiveTab={setActiveTab} />;
         } else if (user.role === 'doctor') {
           return <DoctorDashboard token={token} formatPrice={formatPrice} activeTab={activeTab} />;
         } else {
@@ -111,7 +111,7 @@ export default function App() {
         } else if (user.role === 'doctor') {
           return <DoctorDashboard token={token} formatPrice={formatPrice} activeTab={activeTab} />;
         } else {
-          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} setActiveTab={setActiveTab} />;
         }
       case 'records':
         if (user.role === 'patient') {
@@ -123,10 +123,18 @@ export default function App() {
         if (user.role === 'patient') {
           return <PatientPortal token={token} user={user} formatPrice={formatPrice} activeTab={activeTab} onUserUpdate={refreshUser} />;
         } else {
-          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} setActiveTab={setActiveTab} />;
         }
       case 'patients':
+        if (user.role === 'admin') {
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} setActiveTab={setActiveTab} />;
+        }
         return <DoctorDashboard token={token} formatPrice={formatPrice} activeTab={activeTab} />;
+      case 'doctors':
+        if (user.role === 'admin') {
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} setActiveTab={setActiveTab} />;
+        }
+        return null;
       case 'profile':
         if (user.role === 'patient') {
           return <PatientPortal token={token} user={user} formatPrice={formatPrice} activeTab={activeTab} onUserUpdate={refreshUser} />;

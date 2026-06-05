@@ -1,3 +1,5 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -21,6 +23,14 @@ const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Middleware to reload database for any incoming API request to avoid serverless/multiprocess out-of-sync states
+app.use(async (req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    await loadDatabase();
+  }
+  next();
+});
 
 // Initialize Supabase if DATABASE_TYPE is configured
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -443,6 +453,107 @@ app.post('/api/auth/register', (req, res) => {
 // GET /api/doctors (List all or specialty filter)
 app.get('/api/doctors', (req, res) => {
   res.json(dbData.doctors);
+});
+
+// POST /api/doctors (Admins registering new specialist physicians)
+app.post('/api/doctors', (req, res) => {
+  const user = authenticateSimulatedUser(req.headers);
+  if (!user || user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access restricted to administrators only.' });
+  }
+
+  const { fullName, email, specialization, departmentName, scheduleDays, scheduleHours } = req.body;
+
+  if (!fullName || !email || !specialization || !departmentName || !scheduleDays || !scheduleHours) {
+    return res.status(400).json({ error: 'All physician details are mandatory.' });
+  }
+
+  const existingUser = dbData.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (existingUser) {
+    return res.status(409).json({ error: 'An account with this email already exists.' });
+  }
+
+  const newId = 'u-' + Math.random().toString(36).substring(2, 9);
+  const newUser: InDbUser = {
+    id: newId,
+    email,
+    passwordHash: 'Doctor123', // Default password for newly registered doctors
+    role: 'doctor',
+    fullName,
+    avatarUrl: `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1622253692010-333f2da6031d' : '1594824813573-246434e33963'}?auto=format&fit=crop&q=80&w=200`,
+    createdAt: new Date().toISOString()
+  };
+
+  const newDoctor = {
+    id: newId,
+    fullName,
+    email,
+    specialization,
+    departmentName,
+    schedule: {
+      days: scheduleDays,
+      hours: scheduleHours
+    }
+  };
+
+  const users = [...dbData.users, newUser];
+  const doctors = [...dbData.doctors, newDoctor];
+
+  saveDatabase({ ...dbData, users, doctors });
+  addAudit(user.fullName, 'REGISTER_DOCTOR', `Registered physician ${fullName} with ID ${newId}`);
+
+  res.status(201).json(newDoctor);
+});
+
+// POST /api/patients/offline (Admins or doctors registering offline/walk-in patients)
+app.post('/api/patients/offline', (req, res) => {
+  const user = authenticateSimulatedUser(req.headers);
+  if (!user || (user.role !== 'admin' && user.role !== 'doctor')) {
+    return res.status(403).json({ error: 'Access restricted to authorized personnel only.' });
+  }
+
+  const { email, fullName, dob, gender, age, occupation, address, medicalHistorySummary = '' } = req.body;
+
+  if (!email || !fullName || !dob || !gender) {
+    return res.status(400).json({ error: 'Email, Full Name, DOB, and Gender are mandatory fields.' });
+  }
+
+  const existingUser = dbData.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (existingUser) {
+    return res.status(409).json({ error: 'An account with this email already exists in our system.' });
+  }
+
+  const newId = 'u-' + Math.random().toString(36).substring(2, 9);
+  const newUser: InDbUser = {
+    id: newId,
+    email,
+    passwordHash: 'Patient123', // Default password for walk-in patients
+    role: 'patient',
+    fullName,
+    avatarUrl: `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1534528741775-53994a69daeb' : '1507003211169-0a1dd7228f2d'}?auto=format&fit=crop&q=80&w=200`,
+    createdAt: new Date().toISOString()
+  };
+
+  const newPatient = {
+    id: newId,
+    fullName,
+    email,
+    dob,
+    gender,
+    insuranceNo: '', // No insurance card field as per HIPAA/User req
+    medicalHistorySummary,
+    age: age ? parseInt(age, 10) : undefined,
+    occupation,
+    address
+  };
+
+  const users = [...dbData.users, newUser];
+  const patients = [...dbData.patients, newPatient];
+
+  saveDatabase({ ...dbData, users, patients });
+  addAudit(user.fullName, 'REGISTER_OFFLINE_PATIENT', `Registered offline patient ${fullName} with ID ${newId}`);
+
+  res.status(201).json(newPatient);
 });
 
 // GET /api/patients (Requires doctor or admin privileges)

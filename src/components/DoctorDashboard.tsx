@@ -46,6 +46,64 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
   const [prescriptionsArrayList, setPrescriptionsArrayList] = useState<string[]>([]);
   const [writeMessage, setWriteMessage] = useState<string | null>(null);
 
+  // New Offline Patient form state
+  const [patName, setPatName] = useState('');
+  const [patEmail, setPatEmail] = useState('');
+  const [patDob, setPatDob] = useState('');
+  const [patGender, setPatGender] = useState('Male');
+  const [patAge, setPatAge] = useState('');
+  const [patOccupation, setPatOccupation] = useState('');
+  const [patAddress, setPatAddress] = useState('');
+  const [patMedicalHistory, setPatMedicalHistory] = useState('');
+  const [patMessage, setPatMessage] = useState<string | null>(null);
+  const [showPatForm, setShowPatForm] = useState(false);
+
+  const handleOfflinePatientSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPatMessage(null);
+    if (!patName || !patEmail || !patDob || !patGender) return;
+
+    try {
+      const response = await fetch('/api/patients/offline', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          email: patEmail,
+          fullName: patName,
+          dob: patDob,
+          gender: patGender,
+          age: patAge,
+          occupation: patOccupation,
+          address: patAddress,
+          medicalHistorySummary: patMedicalHistory
+        })
+      });
+      if (response.ok) {
+        setPatMessage('success:Offline patient registered successfully.');
+        setPatName('');
+        setPatEmail('');
+        setPatDob('');
+        setPatAge('');
+        setPatOccupation('');
+        setPatAddress('');
+        setPatMedicalHistory('');
+        fetchDoctorData();
+        setTimeout(() => {
+          setShowPatForm(false);
+          setPatMessage(null);
+        }, 1500);
+      } else {
+        const err = await response.json();
+        setPatMessage(`error:${err.error || 'Server error creating patient record'}`);
+      }
+    } catch (e: any) {
+      setPatMessage(`error:${e.message}`);
+    }
+  };
+
   const fetchDoctorData = async () => {
     try {
       const headers = { 'Authorization': `Bearer ${token}` };
@@ -300,52 +358,181 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
               )}
               </div>
             </div>
-          )}
-
-            {/* Registered Patient Directories List */}
+          )}            {/* Registered Patient Directories List */}
             {(showAll || showRecords || showPatientsOnly) && (
               <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm overflow-hidden transition-colors">
-            <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/10 flex gap-2 items-center">
-              <Search className="h-4 w-4 text-slate-400 dark:text-slate-550" />
-              <input
-                id="patient-search-input"
-                type="text"
-                placeholder="Search registered patient files..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full text-xs bg-transparent text-slate-800 dark:text-white border-none outline-none focus:ring-0 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-              />
-            </div>
-
-            <div className="p-4 space-y-2 max-h-80 overflow-y-auto">
-              <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Hospital Records ({filteredPatients.length} Active Records)</h4>
-              {filteredPatients.length > 0 ? (
-                filteredPatients.map(pt => (
+                
+                {/* Offline Patient Form Trigger Bar */}
+                <div className="px-4 py-3 bg-slate-50/60 dark:bg-slate-900/40 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Patient Registry</span>
                   <button
-                    key={pt.id}
-                    id={`pt-row-${pt.id}`}
-                    onClick={() => handlePatientSelect(pt)}
-                    className={`w-full text-left p-3 rounded-xl border border-slate-100 dark:border-slate-800 transition-all flex items-center justify-between group ${
-                      selectedPatientId === pt.id ? 'bg-[#0D9488]/5 dark:bg-[#0D9488]/10 border-[#0D9488]' : 'bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-800 dark:text-white'
-                    }`}
+                    onClick={() => setShowPatForm(!showPatForm)}
+                    className="text-[10px] text-[#0D9488] hover:text-[#0b7e73] font-bold flex items-center gap-1 cursor-pointer focus:outline-none"
                   >
-                    <div>
-                      <h5 className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-[#0D9488] transition-colors">{pt.fullName}</h5>
-                      <p className="text-[10px] text-zinc-400 dark:text-slate-500 font-semibold font-mono mt-0.5">
-                        {pt.age ? `${pt.age} yrs` : 'N/A'} • {pt.occupation || 'No Occupation'}
-                      </p>
-                    </div>
-                    <span className="text-[9px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-0.5 px-2 rounded-md uppercase">View File</span>
+                    <PlusCircle className="w-3.5 h-3.5" />
+                    {showPatForm ? 'Show Patient List' : 'Register Walk-in'}
                   </button>
-                ))
-              ) : (
-                <div id="no-patients-match" className="text-center py-4 text-xs italic text-slate-400 dark:text-slate-500">
-                  No matching inpatient records discoverable in directories.
                 </div>
-              )}
+
+                {showPatForm ? (
+                  <form onSubmit={handleOfflinePatientSubmit} className="p-4 space-y-3 border-b border-slate-100 dark:border-slate-800 text-xs">
+                    <h4 className="font-bold text-[#0F172A] dark:text-white text-[11px] mb-1">Add Walk-in Patient Account</h4>
+                    
+                    {patMessage && (
+                      <div className={`p-2 text-[10px] font-semibold rounded ${
+                        patMessage.startsWith('success') ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-[#F43F5E]'
+                      }`}>
+                        {patMessage.split(':')[1]}
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Name</label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="John Doe"
+                          value={patName}
+                          onChange={(e) => setPatName(e.target.value)}
+                          className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Email</label>
+                        <input
+                          type="email"
+                          required
+                          placeholder="john@example.com"
+                          value={patEmail}
+                          onChange={(e) => setPatEmail(e.target.value)}
+                          className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2.5">
+                      <div className="col-span-2">
+                        <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">DOB</label>
+                        <input
+                          type="date"
+                          required
+                          value={patDob}
+                          onChange={(e) => setPatDob(e.target.value)}
+                          className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Gender</label>
+                        <select
+                          value={patGender}
+                          onChange={(e) => setPatGender(e.target.value)}
+                          className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/60 rounded-lg focus:outline-none focus:border-[#0D9488]"
+                        >
+                          <option>Male</option>
+                          <option>Female</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2.5">
+                      <div>
+                        <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Age</label>
+                        <input
+                          type="number"
+                          placeholder="30"
+                          value={patAge}
+                          onChange={(e) => setPatAge(e.target.value)}
+                          className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Occupation</label>
+                        <input
+                          type="text"
+                          placeholder="Manager"
+                          value={patOccupation}
+                          onChange={(e) => setPatOccupation(e.target.value)}
+                          className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Address</label>
+                      <input
+                        type="text"
+                        placeholder="City, Country"
+                        value={patAddress}
+                        onChange={(e) => setPatAddress(e.target.value)}
+                        className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Medical History</label>
+                      <textarea
+                        placeholder="Chronic history details if any..."
+                        value={patMedicalHistory}
+                        onChange={(e) => setPatMedicalHistory(e.target.value)}
+                        rows={2}
+                        className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488] resize-none"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-2 bg-[#0D9488] hover:bg-[#0b7e73] text-white font-semibold rounded-lg transition-colors cursor-pointer"
+                    >
+                      Add Offline Patient Account
+                    </button>
+                  </form>
+                ) : (
+                  <>
+                    <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/10 flex gap-2 items-center">
+                      <Search className="h-4 w-4 text-slate-400 dark:text-slate-550" />
+                      <input
+                        id="patient-search-input"
+                        type="text"
+                        placeholder="Search registered patient files..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full text-xs bg-transparent text-slate-800 dark:text-white border-none outline-none focus:ring-0 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                      />
+                    </div>
+
+                    <div className="p-4 space-y-2 max-h-80 overflow-y-auto">
+                      <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Hospital Records ({filteredPatients.length} Active Records)</h4>
+                      {filteredPatients.length > 0 ? (
+                        filteredPatients.map(pt => (
+                          <button
+                            key={pt.id}
+                            id={`pt-row-${pt.id}`}
+                            onClick={() => handlePatientSelect(pt)}
+                            className={`w-full text-left p-3 rounded-xl border border-slate-100 dark:border-slate-800 transition-all flex items-center justify-between group ${
+                              selectedPatientId === pt.id ? 'bg-[#0D9488]/5 dark:bg-[#0D9488]/10 border-[#0D9488]' : 'bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/40 text-slate-800 dark:text-white'
+                            }`}
+                          >
+                            <div>
+                              <h5 className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-[#0D9488] transition-colors">{pt.fullName}</h5>
+                              <p className="text-[10px] text-zinc-400 dark:text-slate-550 font-semibold font-mono mt-0.5">
+                                {pt.age ? `${pt.age} yrs` : 'N/A'} • {pt.occupation || 'No Occupation'}
+                              </p>
+                            </div>
+                            <span className="text-[9px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-0.5 px-2 rounded-md uppercase">View File</span>
+                          </button>
+                        ))
+                      ) : (
+                        <div id="no-patients-match" className="text-center py-4 text-xs italic text-slate-400 dark:text-slate-500">
+                          No matching inpatient records discoverable in directories.
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
-          )}
+            )}
 
           </div>
         )}

@@ -11,7 +11,8 @@ import {
   Settings,
   Sun,
   Moon,
-  User as UserIcon
+  User as UserIcon,
+  Stethoscope
 } from 'lucide-react';
 import { User } from '../types';
 
@@ -58,7 +59,13 @@ export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme
       id: 'patients',
       label: 'Registered Patients',
       icon: Users,
-      roles: ['doctor']
+      roles: ['admin', 'doctor']
+    },
+    {
+      id: 'doctors',
+      label: 'Active Physicians',
+      icon: Stethoscope,
+      roles: ['admin']
     },
     {
       id: 'profile',
