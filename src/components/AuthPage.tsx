@@ -12,7 +12,6 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   const [fullName, setFullName] = useState('');
   const [dob, setDob] = useState('');
   const [gender, setGender] = useState('Male');
-  const [insuranceNo, setInsuranceNo] = useState('');
   
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -40,7 +39,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
 
     const endpoint = isRegister ? '/api/auth/register' : '/api/auth/login';
     const bodyObj = isRegister 
-      ? { email, password, fullName, dob, gender, insuranceNo }
+      ? { email, password, fullName, dob, gender }
       : { email, password };
 
     try {
@@ -190,25 +189,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
                   </div>
                 </div>
 
-                <div>
-                  <label htmlFor="reg-insurance" className="block text-xs font-semibold text-[#475569] dark:text-slate-400 uppercase tracking-wider mb-1">
-                    Insurance Card Number
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                      <FileCheck className="h-4 w-4" />
-                    </span>
-                    <input
-                      id="reg-insurance"
-                      type="text"
-                      required
-                      placeholder="INS-XXXXX-A"
-                      value={insuranceNo}
-                      onChange={(e) => setInsuranceNo(e.target.value)}
-                      className="w-full pl-10 pr-3 py-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 focus:outline-none focus:border-[#0D9488] text-sm text-slate-900 dark:text-white transition-colors"
-                    />
-                  </div>
-                </div>
+
               </>
             )}
 

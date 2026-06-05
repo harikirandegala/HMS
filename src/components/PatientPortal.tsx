@@ -19,9 +19,10 @@ interface PatientPortalProps {
   token: string;
   user: any;
   formatPrice: (amount: number) => string;
+  activeTab: string;
 }
 
-export default function PatientPortal({ token, user, formatPrice }: PatientPortalProps) {
+export default function PatientPortal({ token, user, formatPrice, activeTab }: PatientPortalProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -155,6 +156,11 @@ export default function PatientPortal({ token, user, formatPrice }: PatientPorta
 
   const timeSlots = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
 
+  const showAll = activeTab === 'dashboard';
+  const showAppointments = showAll || activeTab === 'appointments';
+  const showRecords = showAll || activeTab === 'records';
+  const showBilling = showAll || activeTab === 'billing';
+
   return (
     <div className="space-y-8 animate-fade-in font-sans text-[#1E293B] dark:text-slate-100">
       
@@ -187,7 +193,8 @@ export default function PatientPortal({ token, user, formatPrice }: PatientPorta
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left column (5 columns) */}
-        <div className="lg:col-span-5 space-y-6">
+        {showAppointments && (
+          <div className={showAll ? "lg:col-span-5 space-y-6" : "lg:col-span-12 max-w-3xl mx-auto w-full space-y-6"}>
           
           {/* Appointment booking module card */}
           <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
@@ -327,13 +334,16 @@ export default function PatientPortal({ token, user, formatPrice }: PatientPorta
             </div>
           </div>
 
-        </div>
+          </div>
+        )}
 
         {/* Right column (7 columns) - medical records timeline & billing summaries */}
-        <div className="lg:col-span-7 space-y-6">
+        {(showRecords || showBilling) && (
+          <div className={showAll ? "lg:col-span-7 space-y-6" : "lg:col-span-12 max-w-3xl mx-auto w-full space-y-6"}>
           
-          {/* Comprehensive Medical Records */}
-          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
+            {/* Comprehensive Medical Records */}
+            {showRecords && (
+              <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
             <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-850 pb-3">
               <FolderHeart className="text-[#0D9488] h-5 w-5" />
               <h3 className="font-bold text-sm tracking-wide text-slate-900 dark:text-white">My Clinical File & Records Timeline</h3>
@@ -395,8 +405,10 @@ export default function PatientPortal({ token, user, formatPrice }: PatientPorta
               )}
             </div>
           </div>
+        )}
 
-          {/* Surcharge invoices billing card */}
+        {/* Surcharge invoices billing card */}
+        {showBilling && (
           <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
             <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-850 pb-3">
               <CreditCard className="text-[#0D9488] h-5 w-5" />
@@ -438,10 +450,12 @@ export default function PatientPortal({ token, user, formatPrice }: PatientPorta
               )}
             </div>
           </div>
-
-        </div>
+        )}
 
       </div>
+    )}
+
+  </div>
 
       {/* SECURE STRIPE CHECKOUT SIMULATED MODAL */}
       {activePaymentInvoice && (

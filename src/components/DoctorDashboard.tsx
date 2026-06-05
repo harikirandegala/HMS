@@ -18,9 +18,10 @@ import { Appointment, Patient, MedicalRecord } from '../types';
 interface DoctorDashboardProps {
   token: string;
   formatPrice: (amount: number) => string;
+  activeTab: string;
 }
 
-export default function DoctorDashboard({ token, formatPrice }: DoctorDashboardProps) {
+export default function DoctorDashboard({ token, formatPrice, activeTab }: DoctorDashboardProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
   
@@ -176,6 +177,11 @@ export default function DoctorDashboard({ token, formatPrice }: DoctorDashboardP
     p.insuranceNo.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const showAll = activeTab === 'dashboard';
+  const showAppointments = showAll || activeTab === 'appointments';
+  const showRecords = showAll || activeTab === 'records';
+  const showPatientsOnly = activeTab === 'patients';
+
   return (
     <div className="space-y-8 animate-fade-in font-sans text-[#1E293B] dark:text-slate-100">
       
@@ -202,10 +208,12 @@ export default function DoctorDashboard({ token, formatPrice }: DoctorDashboardP
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Side (5 Column) */}
-        <div className="lg:col-span-5 space-y-6">
+        {(showAppointments || showRecords || showPatientsOnly) && (
+          <div className={activeTab === 'appointments' ? "lg:col-span-12 max-w-3xl mx-auto w-full space-y-6" : "lg:col-span-5 space-y-6"}>
           
-          {/* Appointment Queue card */}
-          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm overflow-hidden transition-colors">
+            {/* Appointment Queue card */}
+            {showAppointments && (
+              <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm overflow-hidden transition-colors">
             <div className="bg-[#0F172A] dark:bg-slate-900 p-4 text-white flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-[#0D9488]" />
@@ -279,11 +287,13 @@ export default function DoctorDashboard({ token, formatPrice }: DoctorDashboardP
                   No patient clinical consults booked in active slots.
                 </div>
               )}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Registered Patient Directories List */}
-          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm overflow-hidden transition-colors">
+            {/* Registered Patient Directories List */}
+            {(showAll || showRecords || showPatientsOnly) && (
+              <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm overflow-hidden transition-colors">
             <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/10 flex gap-2 items-center">
               <Search className="h-4 w-4 text-slate-400 dark:text-slate-550" />
               <input
@@ -320,18 +330,22 @@ export default function DoctorDashboard({ token, formatPrice }: DoctorDashboardP
                   No matching inpatient records discoverable in directories.
                 </div>
               )}
+              </div>
             </div>
-          </div>
+          )}
 
-        </div>
+          </div>
+        )}
 
         {/* Right Side - Patient Detail Timeline & Professional Consultation note writer (7 Column) */}
-        <div className="lg:col-span-7">
+        {(showAll || showRecords || showPatientsOnly) && (
+          <div className="lg:col-span-7">
           
           {selectedPatientId && selectedPatient ? (
             <div className="space-y-6">
                           {/* Demographics Summary card */}
-              <div className="bg-white dark:bg-[#111827] p-5 rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm relative overflow-hidden transition-colors">
+              {(showAll || showRecords || showPatientsOnly) && (
+                <div className="bg-white dark:bg-[#111827] p-5 rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm relative overflow-hidden transition-colors">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-[#0D9488]/5 dark:bg-[#0D9488]/10 rounded-bl-full pointer-events-none" />
                 
                 <span className="text-[10px] bg-[#0F172A] dark:bg-slate-800 text-white px-2 py-0.5 rounded font-mono font-bold tracking-wider uppercase">
@@ -360,10 +374,12 @@ export default function DoctorDashboard({ token, formatPrice }: DoctorDashboardP
                     <p className="text-slate-600 dark:text-slate-350 mt-0.5 leading-relaxed">{selectedPatient.medicalHistorySummary}</p>
                   </div>
                 )}
-              </div>
+                </div>
+              )}
 
               {/* Professional Consultation Note Creator Pad */}
-              <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm overflow-hidden p-6 transition-colors">
+              {(showAll || showRecords) && (
+                <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm overflow-hidden p-6 transition-colors">
                 <div className="flex items-center gap-2 mb-4">
                   <Clipboard className="text-[#0D9488] h-5 w-5" />
                   <h3 className="font-bold text-base text-slate-900 dark:text-white">Computerized Practitioner Clinical Pad & consult</h3>
@@ -510,10 +526,12 @@ export default function DoctorDashboard({ token, formatPrice }: DoctorDashboardP
                     <span>Authorize, Publish & invoice consultation</span>
                   </button>
                 </form>
-              </div>
+                </div>
+              )}
 
               {/* Chronological clinical encounters logs history timeline */}
-              <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
+              {(showAll || showRecords) && (
+                <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
                 <h4 className="font-bold text-sm text-[#0F172A] dark:text-white border-b border-slate-100 dark:border-slate-800 pb-2">CHRONOLOGICAL CLINICAL FILE JOURNAL TIMELINE</h4>
                 
                 <div className="relative border-l border-slate-200 dark:border-slate-800 pl-4 space-y-4 ml-2">
@@ -563,19 +581,23 @@ export default function DoctorDashboard({ token, formatPrice }: DoctorDashboardP
                   )}
                 </div>
               </div>
+            )}
 
             </div>
           ) : (
-            <div id="pt-selector-placeholder" className="bg-white dark:bg-[#111827] p-12 rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] text-center max-w-sm mx-auto shadow-sm transition-colors">
+            (showAll || showRecords || showPatientsOnly) && (
+              <div id="pt-selector-placeholder" className="bg-white dark:bg-[#111827] p-12 rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] text-center max-w-sm mx-auto shadow-sm transition-colors">
               <Clipboard className="h-12 w-12 text-slate-300 dark:text-slate-750 mx-auto stroke-[1.5] mb-3" />
               <h3 className="font-sans font-bold text-[#0F172A] dark:text-white text-sm">Select Inpatient Medical Record</h3>
               <p className="text-xs text-slate-500 dark:text-slate-450 mt-1 leading-relaxed">
                 Choose a clinical patient card from the sidebar directories to start consulting and writing prescriptions.
               </p>
-            </div>
+              </div>
+            )
           )}
 
         </div>
+        )}
 
       </div>
 

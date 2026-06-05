@@ -15,9 +15,10 @@ import { SystemSettings } from '../App';
 interface SettingsPanelProps {
   settings: SystemSettings;
   setSettings: React.Dispatch<React.SetStateAction<SystemSettings>>;
+  user: any;
 }
 
-export default function SettingsPanel({ settings, setSettings }: SettingsPanelProps) {
+export default function SettingsPanel({ settings, setSettings, user }: SettingsPanelProps) {
   const toggleTheme = (theme: 'light' | 'dark') => {
     setSettings(prev => ({ ...prev, theme }));
   };
@@ -160,21 +161,23 @@ export default function SettingsPanel({ settings, setSettings }: SettingsPanelPr
         <div className="space-y-6">
           
           {/* System Security Specs */}
-          <div className="bg-[#0F172A] text-[#A7F3D0] p-6 rounded-2xl border border-[#1E293B] shadow-lg space-y-4">
-            <h3 className="font-mono text-xs font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-[#0D9488]" />
-              Secure Crypt-Safe Console
-            </h3>
-            <p className="font-mono text-[10px] text-slate-300 leading-relaxed">
-              This node is synchronized under NIST Health Standards. All changes to preferences (theme configurations, localization, notification triggers) are actively audited under secure system logging protocols.
-            </p>
-            <div className="border-t border-[#1E293B] pt-3 flex items-center justify-between text-[9px] text-slate-400 font-mono">
-              <span className="flex items-center gap-1">
-                <Lock className="h-3 w-3 text-[#0D9488]" /> SSL: 256-Bit
-              </span>
-              <span>Audit State: ENFORCED</span>
+          {user?.role === 'admin' && (
+            <div className="bg-[#0F172A] text-[#A7F3D0] p-6 rounded-2xl border border-[#1E293B] shadow-lg space-y-4">
+              <h3 className="font-mono text-xs font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-[#0D9488]" />
+                Secure Crypt-Safe Console
+              </h3>
+              <p className="font-mono text-[10px] text-slate-300 leading-relaxed">
+                This node is synchronized under NIST Health Standards. All changes to preferences (theme configurations, localization, notification triggers) are actively audited under secure system logging protocols.
+              </p>
+              <div className="border-t border-[#1E293B] pt-3 flex items-center justify-between text-[9px] text-[#94A3B8] font-mono">
+                <span className="flex items-center gap-1">
+                  <Lock className="h-3 w-3 text-[#0D9488]" /> SSL: 256-Bit
+                </span>
+                <span>Audit State: ENFORCED</span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* System Specs */}
           <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] p-6 shadow-sm space-y-4">

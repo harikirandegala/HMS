@@ -384,9 +384,9 @@ app.post('/api/auth/login', (req, res) => {
 
 // Patient Self Registry
 app.post('/api/auth/register', (req, res) => {
-  const { email, password, fullName, dob, gender, insuranceNo } = req.body;
+  const { email, password, fullName, dob, gender, insuranceNo = '' } = req.body;
 
-  if (!email || !password || !fullName || !dob || !gender || !insuranceNo) {
+  if (!email || !password || !fullName || !dob || !gender) {
     return res.status(400).json({ error: 'All fields are mandatory for clinical compliance registration.' });
   }
 

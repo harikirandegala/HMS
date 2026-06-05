@@ -45,19 +45,19 @@ export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme
       id: 'records',
       label: isPatient ? 'My Medical File' : 'Patient Clinical Notes',
       icon: FileText,
-      roles: ['admin', 'doctor', 'patient']
+      roles: ['doctor', 'patient']
     },
     {
       id: 'billing',
       label: isPatient ? 'Bills & Payments' : 'Accounting & Invoices',
       icon: CreditCard,
-      roles: ['admin', 'doctor', 'patient']
+      roles: ['admin', 'patient']
     },
     {
       id: 'patients',
       label: 'Registered Patients',
       icon: Users,
-      roles: ['admin', 'doctor']
+      roles: ['doctor']
     },
     {
       id: 'settings',

@@ -16,7 +16,7 @@ export interface Patient {
   email: string;
   dob: string;
   gender: string;
-  insuranceNo: string;
+  insuranceNo?: string;
   medicalHistorySummary?: string;
 }
 

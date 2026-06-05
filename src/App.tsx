@@ -92,36 +92,36 @@ export default function App() {
     switch (activeTab) {
       case 'dashboard':
         if (user.role === 'admin') {
-          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} />;
         } else if (user.role === 'doctor') {
-          return <DoctorDashboard token={token} formatPrice={formatPrice} />;
+          return <DoctorDashboard token={token} formatPrice={formatPrice} activeTab={activeTab} />;
         } else {
-          return <PatientPortal token={token} user={user} formatPrice={formatPrice} />;
+          return <PatientPortal token={token} user={user} formatPrice={formatPrice} activeTab={activeTab} />;
         }
       case 'appointments':
         if (user.role === 'patient') {
-          return <PatientPortal token={token} user={user} formatPrice={formatPrice} />;
+          return <PatientPortal token={token} user={user} formatPrice={formatPrice} activeTab={activeTab} />;
         } else if (user.role === 'doctor') {
-          return <DoctorDashboard token={token} formatPrice={formatPrice} />;
+          return <DoctorDashboard token={token} formatPrice={formatPrice} activeTab={activeTab} />;
         } else {
-          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} />;
         }
       case 'records':
         if (user.role === 'patient') {
-          return <PatientPortal token={token} user={user} formatPrice={formatPrice} />;
+          return <PatientPortal token={token} user={user} formatPrice={formatPrice} activeTab={activeTab} />;
         } else {
-          return <DoctorDashboard token={token} formatPrice={formatPrice} />;
+          return <DoctorDashboard token={token} formatPrice={formatPrice} activeTab={activeTab} />;
         }
       case 'billing':
         if (user.role === 'patient') {
-          return <PatientPortal token={token} user={user} formatPrice={formatPrice} />;
+          return <PatientPortal token={token} user={user} formatPrice={formatPrice} activeTab={activeTab} />;
         } else {
-          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} activeTab={activeTab} />;
         }
       case 'patients':
-        return <DoctorDashboard token={token} formatPrice={formatPrice} />;
+        return <DoctorDashboard token={token} formatPrice={formatPrice} activeTab={activeTab} />;
       case 'settings':
-        return <SettingsPanel settings={settings} setSettings={setSettings} />;
+        return <SettingsPanel settings={settings} setSettings={setSettings} user={user} />;
       default:
         return <div className="text-center p-12 text-slate-400 dark:text-slate-600">Section actively under engineering build works.</div>;
     }
