@@ -6,8 +6,15 @@ import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import { createClient } from '@supabase/supabase-js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+let _filename = '';
+let _dirname = '';
+try {
+  _filename = __filename;
+  _dirname = __dirname;
+} catch (e) {
+  _filename = fileURLToPath(import.meta.url);
+  _dirname = path.dirname(_filename);
+}
 
 const app = express();
 const PORT = 3000;
