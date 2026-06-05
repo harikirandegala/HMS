@@ -159,14 +159,14 @@ export default function SettingsPanel({ settings, setSettings }: SettingsPanelPr
         {/* Right Info Column (1 column) */}
         <div className="space-y-6">
           
-          {/* HIPAA & Security Specs */}
+          {/* System Security Specs */}
           <div className="bg-[#0F172A] text-[#A7F3D0] p-6 rounded-2xl border border-[#1E293B] shadow-lg space-y-4">
             <h3 className="font-mono text-xs font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-[#0D9488]" />
-              HIPAA Crypt-Safe Console
+              Secure Crypt-Safe Console
             </h3>
             <p className="font-mono text-[10px] text-slate-300 leading-relaxed">
-              This node is synchronized under NIST Health Standards. All changes to preferences (theme configurations, localization, notification triggers) are actively audited under HIPAA security log rules.
+              This node is synchronized under NIST Health Standards. All changes to preferences (theme configurations, localization, notification triggers) are actively audited under secure system logging protocols.
             </p>
             <div className="border-t border-[#1E293B] pt-3 flex items-center justify-between text-[9px] text-slate-400 font-mono">
               <span className="flex items-center gap-1">

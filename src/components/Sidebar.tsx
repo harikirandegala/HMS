@@ -60,12 +60,6 @@ export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme
       roles: ['admin', 'doctor']
     },
     {
-      id: 'logs',
-      label: 'HIPAA Security Logs',
-      icon: ShieldAlert,
-      roles: ['admin']
-    },
-    {
       id: 'settings',
       label: 'System Settings',
       icon: Settings,

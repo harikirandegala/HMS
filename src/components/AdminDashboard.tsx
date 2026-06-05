@@ -31,9 +31,10 @@ import { HMSAnalytics, Doctor, Patient, Invoice } from '../types';
 interface AdminDashboardProps {
   token: string;
   formatPrice: (amount: number) => string;
+  currency: 'INR' | 'USD' | 'EUR' | 'GBP';
 }
 
-export default function AdminDashboard({ token, formatPrice }: AdminDashboardProps) {
+export default function AdminDashboard({ token, formatPrice, currency }: AdminDashboardProps) {
   const [analytics, setAnalytics] = useState<HMSAnalytics | null>(null);
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -44,7 +45,14 @@ export default function AdminDashboard({ token, formatPrice }: AdminDashboardPro
   const [invPatientId, setInvPatientId] = useState('');
   const [invDescription, setInvDescription] = useState('');
   const [invAmount, setInvAmount] = useState('');
+  const [invCurrency, setInvCurrency] = useState<'INR' | 'USD' | 'EUR' | 'GBP'>(currency || 'INR');
   const [invMessage, setInvMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (currency) {
+      setInvCurrency(currency);
+    }
+  }, [currency]);
 
   // New Doctor account form
   const [docName, setDocName] = useState('');
@@ -87,6 +95,16 @@ export default function AdminDashboard({ token, formatPrice }: AdminDashboardPro
     setInvMessage(null);
     if (!invPatientId || !invDescription || !invAmount) return;
 
+    // Convert from the chosen invoice input currency to base USD for storage
+    let baseAmount = parseFloat(invAmount);
+    if (invCurrency === 'INR') {
+      baseAmount = baseAmount / 80;
+    } else if (invCurrency === 'EUR') {
+      baseAmount = baseAmount / 0.92;
+    } else if (invCurrency === 'GBP') {
+      baseAmount = baseAmount / 0.78;
+    }
+
     try {
       const response = await fetch('/api/invoices', {
         method: 'POST',
@@ -97,7 +115,7 @@ export default function AdminDashboard({ token, formatPrice }: AdminDashboardPro
         body: JSON.stringify({
           patientId: invPatientId,
           description: invDescription,
-          amount: parseFloat(invAmount)
+          amount: baseAmount
         })
       });
       if (response.ok) {
@@ -313,7 +331,7 @@ export default function AdminDashboard({ token, formatPrice }: AdminDashboardPro
 
       </div>
 
-      {/* Main interactive panel splits: Manual Invoicing and Audit logging */}
+      {/* Main interactive panel splits: Manual Invoicing and Activity logging */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Invoicing Section */}
@@ -339,7 +357,7 @@ export default function AdminDashboard({ token, formatPrice }: AdminDashboardPro
                   id="inv-patient"
                   value={invPatientId}
                   onChange={(e) => setInvPatientId(e.target.value)}
-                  className="w-full text-sm py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488] transition-colors"
+                  className="w-full text-sm py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488] transition-colors cursor-pointer"
                   required
                 >
                   <option value="" className="dark:bg-[#111827]">-- Choose Patient Account --</option>
@@ -362,20 +380,39 @@ export default function AdminDashboard({ token, formatPrice }: AdminDashboardPro
                 />
               </div>
 
-              <div>
-                <label htmlFor="inv-amount" className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Fee Amount (Base USD Value)</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 dark:text-slate-500 font-bold">$</span>
-                  <input
-                    id="inv-amount"
-                    type="number"
-                    step="0.01"
-                    placeholder="150.00"
-                    value={invAmount}
-                    onChange={(e) => setInvAmount(e.target.value)}
-                    className="w-full pl-7 pr-3 py-2 text-sm border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488] transition-colors"
-                    required
-                  />
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-1">
+                  <label htmlFor="inv-currency" className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Currency</label>
+                  <select
+                    id="inv-currency"
+                    value={invCurrency}
+                    onChange={(e) => setInvCurrency(e.target.value as any)}
+                    className="w-full text-sm py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488] transition-colors cursor-pointer"
+                  >
+                    <option value="INR">INR (₹)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                  </select>
+                </div>
+
+                <div className="col-span-2">
+                  <label htmlFor="inv-amount" className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1">Fee Amount</label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 dark:text-slate-500 font-bold font-mono">
+                      {invCurrency === 'INR' ? '₹' : invCurrency === 'EUR' ? '€' : invCurrency === 'GBP' ? '£' : '$'}
+                    </span>
+                    <input
+                      id="inv-amount"
+                      type="number"
+                      step="0.01"
+                      placeholder="150.00"
+                      value={invAmount}
+                      onChange={(e) => setInvAmount(e.target.value)}
+                      className="w-full pl-7 pr-3 py-2 text-sm border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488] transition-colors"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -397,10 +434,10 @@ export default function AdminDashboard({ token, formatPrice }: AdminDashboardPro
             <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <Terminal className="text-[#0D9488] h-5 w-5 animate-pulse" />
-                <h3 className="font-mono text-xs font-bold text-slate-100 uppercase tracking-wider">HIPAA Audit Trail (Real-Time Console)</h3>
+                <h3 className="font-mono text-xs font-bold text-slate-100 uppercase tracking-wider">System Activity Logs</h3>
               </div>
               <span className="text-[10px] font-mono bg-[#0D9488]/20 text-[#0e9f90] border border-[#0d9488]/30 px-2 py-0.5 rounded-md">
-                SECURE LOGS
+                SYSTEM LOGS
               </span>
             </div>
 
@@ -426,8 +463,8 @@ export default function AdminDashboard({ token, formatPrice }: AdminDashboardPro
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-800 text-[10px] text-slate-400 flex justify-between items-center">
-            <span>Standard: NIST Healthcare Framework</span>
-            <span className="font-bold text-emerald-400 font-mono">100% Crypt-Guard Verified</span>
+            <span>System Status: Online</span>
+            <span className="font-bold text-emerald-400 font-mono">Logged Operations</span>
           </div>
         </div>
 

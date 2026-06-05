@@ -92,7 +92,7 @@ export default function App() {
     switch (activeTab) {
       case 'dashboard':
         if (user.role === 'admin') {
-          return <AdminDashboard token={token} formatPrice={formatPrice} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} />;
         } else if (user.role === 'doctor') {
           return <DoctorDashboard token={token} formatPrice={formatPrice} />;
         } else {
@@ -104,7 +104,7 @@ export default function App() {
         } else if (user.role === 'doctor') {
           return <DoctorDashboard token={token} formatPrice={formatPrice} />;
         } else {
-          return <AdminDashboard token={token} formatPrice={formatPrice} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} />;
         }
       case 'records':
         if (user.role === 'patient') {
@@ -116,12 +116,10 @@ export default function App() {
         if (user.role === 'patient') {
           return <PatientPortal token={token} user={user} formatPrice={formatPrice} />;
         } else {
-          return <AdminDashboard token={token} formatPrice={formatPrice} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} currency={settings.currency} />;
         }
       case 'patients':
         return <DoctorDashboard token={token} formatPrice={formatPrice} />;
-      case 'logs':
-        return <AdminDashboard token={token} formatPrice={formatPrice} />;
       case 'settings':
         return <SettingsPanel settings={settings} setSettings={setSettings} />;
       default:
