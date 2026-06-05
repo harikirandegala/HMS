@@ -1,28 +1,61 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Activity, 
-  HelpCircle, 
-  ShieldAlert, 
-  ExternalLink,
-  Terminal,
-  Database,
-  Cloud,
-  Layers,
-  ChevronDown,
-  ChevronUp
-} from 'lucide-react';
 import AuthPage from './components/AuthPage';
 import Sidebar from './components/Sidebar';
 import AdminDashboard from './components/AdminDashboard';
 import DoctorDashboard from './components/DoctorDashboard';
 import PatientPortal from './components/PatientPortal';
-import { User, UserRole } from './types';
+import SettingsPanel from './components/SettingsPanel';
+import { User } from './types';
+
+export interface SystemSettings {
+  theme: 'light' | 'dark';
+  currency: 'INR' | 'USD' | 'EUR' | 'GBP';
+}
 
 export default function App() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [showDeploymentPanel, setShowDeploymentPanel] = useState(false);
+  
+  // Persistent system-wide settings
+  const [settings, setSettings] = useState<SystemSettings>(() => {
+    const saved = localStorage.getItem('hms_settings');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return { theme: 'light', currency: 'INR' };
+  });
+
+  useEffect(() => {
+    localStorage.setItem('hms_settings', JSON.stringify(settings));
+    if (settings.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [settings]);
+
+  const toggleTheme = () => {
+    setSettings((prev) => ({
+      ...prev,
+      theme: prev.theme === 'dark' ? 'light' : 'dark'
+    }));
+  };
+
+  const formatPrice = (amount: number) => {
+    switch (settings.currency) {
+      case 'INR':
+        return `₹${(amount * 80).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      case 'EUR':
+        return `€${(amount * 0.92).toLocaleString('en-IE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      case 'GBP':
+        return `£${(amount * 0.78).toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      default:
+        return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+  };
 
   // Read session from localStorage on startup if present
   useEffect(() => {
@@ -59,108 +92,46 @@ export default function App() {
     switch (activeTab) {
       case 'dashboard':
         if (user.role === 'admin') {
-          return <AdminDashboard token={token} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} />;
         } else if (user.role === 'doctor') {
-          return <DoctorDashboard token={token} />;
+          return <DoctorDashboard token={token} formatPrice={formatPrice} />;
         } else {
-          return <PatientPortal token={token} user={user} />;
+          return <PatientPortal token={token} user={user} formatPrice={formatPrice} />;
         }
       case 'appointments':
         if (user.role === 'patient') {
-          return <PatientPortal token={token} user={user} />;
+          return <PatientPortal token={token} user={user} formatPrice={formatPrice} />;
         } else if (user.role === 'doctor') {
-          return <DoctorDashboard token={token} />;
+          return <DoctorDashboard token={token} formatPrice={formatPrice} />;
         } else {
-          return <AdminDashboard token={token} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} />;
         }
       case 'records':
         if (user.role === 'patient') {
-          return <PatientPortal token={token} user={user} />;
+          return <PatientPortal token={token} user={user} formatPrice={formatPrice} />;
         } else {
-          return <DoctorDashboard token={token} />;
+          return <DoctorDashboard token={token} formatPrice={formatPrice} />;
         }
       case 'billing':
         if (user.role === 'patient') {
-          return <PatientPortal token={token} user={user} />;
+          return <PatientPortal token={token} user={user} formatPrice={formatPrice} />;
         } else {
-          return <AdminDashboard token={token} />;
+          return <AdminDashboard token={token} formatPrice={formatPrice} />;
         }
       case 'patients':
-        return <DoctorDashboard token={token} />;
+        return <DoctorDashboard token={token} formatPrice={formatPrice} />;
       case 'logs':
-        return <AdminDashboard token={token} />;
+        return <AdminDashboard token={token} formatPrice={formatPrice} />;
+      case 'settings':
+        return <SettingsPanel settings={settings} setSettings={setSettings} />;
       default:
-        return <div className="text-center p-12 text-slate-400">Section actively under engineering build works.</div>;
+        return <div className="text-center p-12 text-slate-400 dark:text-slate-600">Section actively under engineering build works.</div>;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans text-slate-800">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B0F19] flex flex-col font-sans text-slate-800 dark:text-slate-100">
       
-      {/* Top Deployment Guidelines Accordion Drawer */}
-      <div className="bg-[#0F172A] border-b border-[#1E293B] text-slate-300">
-        <div 
-          onClick={() => setShowDeploymentPanel(!showDeploymentPanel)}
-          className="max-w-7xl mx-auto px-6 py-2.5 flex items-center justify-between cursor-pointer text-xs font-semibold hover:bg-slate-800/40 select-none"
-        >
-          <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0D9488] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0D9488]"></span>
-            </span>
-            <p className="font-mono text-[11px] text-slate-300">
-              DEPLOYMENT ENVIRONMENT GUIDE: Render / Vercel Architecture Blueprint
-            </p>
-          </div>
-          <div className="flex items-center gap-1.5 text-[#0D9488]">
-            <span>{showDeploymentPanel ? 'Hide Specification' : 'Expand Setup Config'}</span>
-            {showDeploymentPanel ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-          </div>
-        </div>
-
-        {/* Deployment specification text block */}
-        {showDeploymentPanel && (
-          <div className="max-w-7xl mx-auto px-6 pb-6 text-xs leading-relaxed space-y-4 border-t border-[#1E293B] pt-4 animate-slide-down">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <h4 className="font-extrabold text-[#0D9488] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <Layers className="h-4 w-4" /> 
-                  1. Server Deployment (Render Configuration)
-                </h4>
-                <p className="text-slate-400">
-                  Deploy the compiled <code className="font-mono text-[#A7F3D0] bg-slate-900 px-1 py-0.5 rounded">server.ts</code> onto Render or secure Docker container hosts.
-                </p>
-                <div className="bg-slate-950 p-3 rounded-lg border border-slate-850 space-y-1 text-[11px] font-mono select-all">
-                  <p className="text-slate-500"># Set those environment credentials on Render:</p>
-                  <p className="text-white">NODE_ENV="production"</p>
-                  <p className="text-white">DATABASE_TYPE="postgres"</p>
-                  <p className="text-white">SUPABASE_URL="https://your-proj.supabase.co"</p>
-                  <p className="text-white">SUPABASE_KEY="your-supabase-service-role-key"</p>
-                  <p className="text-white">JWT_SECRET="your-jwt-signing-secret"</p>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <h4 className="font-extrabold text-[#0D9488] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <Database className="h-4 w-4" /> 
-                  2. Frontend / SPA Deployment (Vercel Configuration)
-                </h4>
-                <p className="text-slate-400">
-                  Deploy the client bundle <code className="font-mono text-[#A7F3D0] bg-slate-900 px-1 py-0.5 rounded">dist/</code> on Vercel. 
-                </p>
-                <div className="bg-slate-950 p-3 rounded-lg border border-slate-850 space-y-1 text-[11px] font-mono select-all">
-                  <p className="text-slate-500"># Set variable on Vercel Dashboard config:</p>
-                  <p className="text-emerald-400">VITE_API_URL="https://your-mediflow-backend.onrender.com"</p>
-                </div>
-              </div>
-            </div>
-            <div className="text-slate-400 pt-2 text-[11px] border-t border-[#1E293B]">
-              <strong>Note:</strong> During Vercel compilation build, Vite will compile to standard React assets, communicating securely to your Render endpoints.
-            </div>
-          </div>
-        )}
-      </div>
-
       {!token || !user ? (
         // Auth gate
         <AuthPage onLoginSuccess={handleLoginSuccess} />
@@ -174,10 +145,12 @@ export default function App() {
             activeTab={activeTab} 
             setActiveTab={setActiveTab} 
             onLogout={handleLogout} 
+            theme={settings.theme}
+            toggleTheme={toggleTheme}
           />
 
           {/* Core Content area */}
-          <main className="flex-1 overflow-y-auto px-8 py-8 md:px-12 bg-[#F8FAFC]">
+          <main className="flex-1 overflow-y-auto px-8 py-8 md:px-12 bg-[#F8FAFC] dark:bg-[#0B0F19]">
             <div className="max-w-7xl mx-auto">
               {renderActiveScreen()}
             </div>

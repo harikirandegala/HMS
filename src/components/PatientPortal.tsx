@@ -18,9 +18,10 @@ import { Appointment, MedicalRecord, Invoice, Doctor } from '../types';
 interface PatientPortalProps {
   token: string;
   user: any;
+  formatPrice: (amount: number) => string;
 }
 
-export default function PatientPortal({ token, user }: PatientPortalProps) {
+export default function PatientPortal({ token, user, formatPrice }: PatientPortalProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -50,10 +51,10 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
         fetch('/api/invoices', { headers })
       ]);
 
-      if (resApts.ok) setAppointments(await resApts.ok ? await resApts.json() : []);
-      if (resDocs.ok) setDoctors(await resDocs.ok ? await resDocs.json() : []);
-      if (resRecords.ok) setMedicalRecords(await resRecords.ok ? await resRecords.json() : []);
-      if (resInvoices.ok) setInvoices(await resInvoices.ok ? await resInvoices.json() : []);
+      if (resApts.ok) setAppointments(await resApts.json());
+      if (resDocs.ok) setDoctors(await resDocs.json());
+      if (resRecords.ok) setMedicalRecords(await resRecords.json());
+      if (resInvoices.ok) setInvoices(await resInvoices.json());
     } catch (e) {
       console.error('Error fetching patient data feeds', e);
     }
@@ -155,28 +156,28 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
   const timeSlots = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
 
   return (
-    <div className="space-y-8 animate-fade-in font-sans text-[#1E293B]">
+    <div className="space-y-8 animate-fade-in font-sans text-[#1E293B] dark:text-slate-100">
       
       {/* Upper patient card metadata banner */}
-      <div className="border-b border-slate-200 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="border-b border-slate-200 dark:border-slate-800 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-[10px] bg-[#0D9488]/10 text-[#0D9488] font-bold border border-[#0D9488]/20 px-3 py-1 rounded-full font-mono uppercase">
+          <span className="text-[10px] bg-[#0D9488]/10 dark:bg-[#0D9488]/20 text-[#0D9488] font-bold border border-[#0D9488]/20 dark:border-[#0D9488]/30 px-3 py-1 rounded-full font-mono uppercase">
             PATIENT SELF SERVICE NODE
           </span>
-          <h2 className="text-2xl font-bold tracking-tight text-[#0F172A] mt-1.5 flex items-center gap-2">
+          <h2 className="text-2xl font-bold tracking-tight text-[#0F172A] dark:text-white mt-1.5 flex items-center gap-2">
             My Electronic Patient Hub
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             Book medical specialist appointments, check your medical history, and pay hospital invoices.
           </p>
         </div>
         
         {getUnpaidSum() > 0 && (
-          <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl flex items-center gap-3">
+          <div className="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 p-3 rounded-xl flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-amber-600 block shrink-0" />
             <div className="text-xs">
-              <p className="font-bold text-slate-800">Unsettled Co-payments</p>
-              <p className="text-slate-500 font-mono mt-0.5">Pending bills: <strong className="text-amber-700">${getUnpaidSum().toFixed(2)}</strong></p>
+              <p className="font-bold text-slate-800 dark:text-slate-200">Unsettled Co-payments</p>
+              <p className="text-slate-500 dark:text-slate-400 font-mono mt-0.5">Pending bills: <strong className="text-amber-700 dark:text-amber-400">{formatPrice(getUnpaidSum())}</strong></p>
             </div>
           </div>
         )}
@@ -189,15 +190,15 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
         <div className="lg:col-span-5 space-y-6">
           
           {/* Appointment booking module card */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-6 space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-850 pb-3">
               <Calendar className="text-[#0D9488] h-5 w-5" />
-              <h3 className="font-bold text-sm tracking-wide text-slate-900">Request Specialist Consultation</h3>
+              <h3 className="font-bold text-sm tracking-wide text-slate-900 dark:text-white">Request Specialist Consultation</h3>
             </div>
 
             {bookingMessage && (
               <div id="booking-alert" className={`p-3 text-xs font-semibold rounded-md ${
-                bookingMessage.startsWith('success') ? 'bg-emerald-50 text-emerald-800' : 'bg-red-50 text-[#F43F5E]'
+                bookingMessage.startsWith('success') ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-500/10 text-[#F43F5E] dark:text-[#F43F5E]'
               }`}>
                 {bookingMessage.split(':')[1]}
               </div>
@@ -205,60 +206,60 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
 
             <form onSubmit={handleBookSlot} className="space-y-4 text-xs">
               <div>
-                <label htmlFor="slot-doctor" className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Pick a Certified Specialist</label>
+                <label htmlFor="slot-doctor" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Pick a Certified Specialist</label>
                 <select
                   id="slot-doctor"
                   value={selectedDoctorId}
                   onChange={(e) => setSelectedDoctorId(e.target.value)}
-                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] bg-white rounded-xl focus:outline-none"
+                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] cursor-pointer"
                   required
                 >
-                  <option value="">-- Choose Specialist Physician --</option>
+                  <option value="" className="text-slate-800 dark:text-slate-200">-- Choose Specialist Physician --</option>
                   {doctors.map(d => (
-                    <option key={d.id} value={d.id}>{d.fullName} ({d.specialization})</option>
+                    <option key={d.id} value={d.id} className="text-slate-800 dark:text-slate-200">{d.fullName} ({d.specialization})</option>
                   ))}
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="slot-date" className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Clinic Date</label>
+                  <label htmlFor="slot-date" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Clinic Date</label>
                   <input
                     id="slot-date"
                     type="date"
                     min={new Date().toISOString().split('T')[0]}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-full text-xs py-2 px-3 border border-[#E2E8F0] bg-white rounded-xl focus:outline-none"
+                    className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488]"
                     required
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="slot-time" className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Clinic Hours Slot</label>
+                  <label htmlFor="slot-time" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Clinic Hours Slot</label>
                   <select
                     id="slot-time"
                     value={selectedTimeSlot}
                     onChange={(e) => setSelectedTimeSlot(e.target.value)}
-                    className="w-full text-xs py-2 px-3 border border-[#E2E8F0] bg-white rounded-xl focus:outline-none"
+                    className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] cursor-pointer"
                     required
                   >
                     {timeSlots.map(ts => (
-                      <option key={ts} value={ts}>{ts}</option>
+                      <option key={ts} value={ts} className="text-slate-800 dark:text-slate-200">{ts}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="slot-reason" className="block text-[10px] uppercase font-bold text-slate-400 mb-1">Consultation Reason / Symptoms</label>
+                <label htmlFor="slot-reason" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Consultation Reason / Symptoms</label>
                 <textarea
                   id="slot-reason"
                   rows={3}
                   placeholder="Explain your physical symptoms or follow-up cardiovascular check-up particulars."
                   value={bookingReason}
                   onChange={(e) => setBookingReason(e.target.value)}
-                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] bg-white rounded-xl focus:outline-none resize-none"
+                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] resize-none"
                   required
                 />
               </div>
@@ -266,7 +267,7 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
               <button
                 id="btn-book-slot-submit"
                 type="submit"
-                className="w-full py-2.5 bg-[#0F172A] hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition-all hover:translate-y-[-1px] active:translate-y-0"
+                className="w-full py-2.5 bg-[#0F172A] hover:bg-slate-800 dark:bg-[#0D9488] dark:hover:bg-[#0b7a70] text-white font-bold text-sm rounded-xl transition-all hover:translate-y-[-1px] active:translate-y-0 cursor-pointer"
               >
                 Book Secured Slot
               </button>
@@ -274,8 +275,8 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
           </div>
 
           {/* Active appointments status monitor list */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm overflow-hidden">
-            <div className="bg-[#0F172A] text-white p-4 font-bold text-xs flex justify-between items-center">
+          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm overflow-hidden transition-colors">
+            <div className="bg-[#0F172A] dark:bg-slate-900 text-white p-4 font-bold text-xs flex justify-between items-center">
               <span>My Scheduled Consultation Queue</span>
               <span className="text-[10px] font-mono bg-[#0D9488] text-white px-2 py-0.5 rounded">
                 {appointments.filter(a => a.status !== 'cancelled').length} Slots
@@ -285,20 +286,20 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
             <div className="p-4 space-y-3 max-h-80 overflow-y-auto">
               {appointments.length > 0 ? (
                 appointments.map(apt => (
-                  <div key={apt.id} id={`patient-apt-${apt.id}`} className="p-3 bg-slate-50 border border-slate-100 rounded-xl relative">
+                  <div key={apt.id} id={`patient-apt-${apt.id}`} className="p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-100 dark:border-slate-850 rounded-xl relative">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h4 className="font-bold text-xs text-slate-850">Doctor: {apt.doctorName}</h4>
-                        <p className="text-[10px] text-zinc-400 font-bold font-mono mt-0.5">
+                        <h4 className="font-bold text-xs text-slate-850 dark:text-slate-200">Doctor: {apt.doctorName}</h4>
+                        <p className="text-[10px] text-zinc-400 dark:text-slate-550 font-bold font-mono mt-0.5">
                           ⏰ {new Date(apt.startTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
                         </p>
-                        <p className="text-xs text-slate-500 italic mt-1.5">"{apt.reason}"</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 italic mt-1.5">"{apt.reason}"</p>
                       </div>
                       
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${
-                        apt.status === 'confirmed' ? 'bg-emerald-50 text-emerald-700' :
-                        apt.status === 'completed' ? 'bg-indigo-50 text-indigo-700' :
-                        apt.status === 'cancelled' ? 'bg-rose-50 text-rose-700' : 'bg-amber-50 text-amber-700'
+                        apt.status === 'confirmed' ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' :
+                        apt.status === 'completed' ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400' :
+                        apt.status === 'cancelled' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-450' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-450'
                       }`}>
                         {apt.status}
                       </span>
@@ -310,7 +311,7 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
                         <button
                           id={`btn-cancel-apt-${apt.id}`}
                           onClick={() => cancelAppointmentPatient(apt.id)}
-                          className="text-[10px] text-rose-500 hover:text-rose-700 font-bold border border-rose-200 hover:bg-rose-50 px-2.5 py-1 rounded-md transition-colors"
+                          className="text-[10px] text-rose-500 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-350 font-bold border border-rose-200 dark:border-rose-800/80 hover:bg-rose-50 dark:hover:bg-rose-500/10 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
                         >
                           Cancel Appointment
                         </button>
@@ -319,7 +320,7 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
                   </div>
                 ))
               ) : (
-                <div id="no-pt-apts" className="text-center py-6 text-xs text-slate-400 italic">
+                <div id="no-pt-apts" className="text-center py-6 text-xs text-slate-400 dark:text-slate-550 italic">
                   You have no consultative appointments booked inside your file.
                 </div>
               )}
@@ -332,53 +333,53 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
         <div className="lg:col-span-7 space-y-6">
           
           {/* Comprehensive Medical Records */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-6 space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-850 pb-3">
               <FolderHeart className="text-[#0D9488] h-5 w-5" />
-              <h3 className="font-bold text-sm tracking-wide text-slate-900">My Clinical File & Records Timeline</h3>
+              <h3 className="font-bold text-sm tracking-wide text-slate-900 dark:text-white">My Clinical File & Records Timeline</h3>
             </div>
 
             <div className="space-y-4 max-h-[440px] overflow-y-auto pr-2 scrollbar-thin">
               {medicalRecords.length > 0 ? (
                 medicalRecords.map((rec, idx) => (
-                  <div key={rec.id} id={`pt-file-history-${rec.id}`} className="bg-slate-50/50 p-4 rounded-xl border border-slate-100 space-y-2">
+                  <div key={rec.id} id={`pt-file-history-${rec.id}`} className="bg-slate-50/50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-slate-850 space-y-2">
                     <div className="flex justify-between items-center text-xs text-[#0D9488] font-bold">
                       <span>📆 Consult Date: {rec.date}</span>
-                      <span className="text-slate-500">Dr: {rec.doctorName}</span>
+                      <span className="text-slate-500 dark:text-slate-400 font-mono">Dr: {rec.doctorName}</span>
                     </div>
 
                     <div>
-                      <h4 className="text-xs font-bold text-slate-800 uppercase">Diagnosis Code: {rec.diagnosis}</h4>
-                      <p className="text-xs text-slate-600 leading-relaxed mt-1 italic">"{rec.notes}"</p>
+                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase">Diagnosis Code: {rec.diagnosis}</h4>
+                      <p className="text-xs text-slate-600 dark:text-slate-350 leading-relaxed mt-1 italic">"{rec.notes}"</p>
                     </div>
 
                     {rec.vitals && (
-                      <div className="bg-white p-2.5 rounded-lg border border-slate-100 mt-2 grid grid-cols-4 gap-2 text-[10px] text-slate-500 font-mono">
+                      <div className="bg-white dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 mt-2 grid grid-cols-4 gap-2 text-[10px] text-slate-500 dark:text-slate-450 font-mono">
                         <div>
                           <span>Vital BP:</span>
-                          <p className="font-bold text-slate-700 mt-0.5">{rec.vitals.bloodPressure}</p>
+                          <p className="font-bold text-slate-700 dark:text-slate-300 mt-0.5">{rec.vitals.bloodPressure}</p>
                         </div>
                         <div>
                           <span>Heart Rate:</span>
-                          <p className="font-bold text-slate-700 mt-0.5">{rec.vitals.heartRate}</p>
+                          <p className="font-bold text-slate-700 dark:text-slate-300 mt-0.5">{rec.vitals.heartRate}</p>
                         </div>
                         <div>
                           <span>Temp:</span>
-                          <p className="font-bold text-slate-700 mt-0.5">{rec.vitals.temperature}</p>
+                          <p className="font-bold text-slate-700 dark:text-slate-300 mt-0.5">{rec.vitals.temperature}</p>
                         </div>
                         {rec.vitals.weight && (
                           <div>
                             <span>Weight:</span>
-                            <p className="font-bold text-slate-700 mt-0.5">{rec.vitals.weight}</p>
+                            <p className="font-bold text-slate-700 dark:text-slate-300 mt-0.5">{rec.vitals.weight}</p>
                           </div>
                         )}
                       </div>
                     )}
 
                     {rec.prescriptions && rec.prescriptions.length > 0 && (
-                      <div className="bg-emerald-500/5 border border-emerald-500/10 p-2.5 rounded-lg mt-2">
-                        <span className="text-[10px] text-indigo-700 font-bold uppercase tracking-wider block mb-1">Active Prescription Compounds</span>
-                        <div className="space-y-1 text-xs text-slate-700 font-mono">
+                      <div className="bg-emerald-500/5 dark:bg-emerald-500/10 border border-emerald-500/10 dark:border-emerald-500/20 p-2.5 rounded-lg mt-2">
+                        <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-bold uppercase tracking-wider block mb-1">Active Prescription Compounds</span>
+                        <div className="space-y-1 text-xs text-slate-700 dark:text-slate-300 font-mono">
                           {rec.prescriptions.map((px, lineIdx) => (
                             <div key={lineIdx}>🔬 {px}</div>
                           ))}
@@ -388,7 +389,7 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
                   </div>
                 ))
               ) : (
-                <div id="no-records-yet" className="text-center py-12 text-xs italic text-slate-400">
+                <div id="no-records-yet" className="text-center py-12 text-xs italic text-slate-400 dark:text-slate-500">
                   You have no historic health encounter records documented in this file.
                 </div>
               )}
@@ -396,33 +397,33 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
           </div>
 
           {/* Surcharge invoices billing card */}
-          <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-sm p-6 space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] shadow-sm p-6 space-y-4 transition-colors">
+            <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-850 pb-3">
               <CreditCard className="text-[#0D9488] h-5 w-5" />
-              <h3 className="font-bold text-sm tracking-wide text-slate-900">Hospital Billing and Surcharge Ledger</h3>
+              <h3 className="font-bold text-sm tracking-wide text-slate-900 dark:text-white">Hospital Billing and Surcharge Ledger</h3>
             </div>
 
             <div className="space-y-3 max-h-60 overflow-y-auto">
               {invoices.length > 0 ? (
                 invoices.map(inv => (
-                  <div key={inv.id} id={`invoice-${inv.id}`} className="p-3 border.5 border-slate-100 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition-all flex items-center justify-between gap-4">
+                  <div key={inv.id} id={`invoice-${inv.id}`} className="p-3 border.5 border-slate-100 dark:border-slate-850 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                      <h4 className="font-bold text-xs text-slate-800 truncate">{inv.description}</h4>
-                      <p className="text-[10px] text-slate-500 font-mono mt-0.5">ID: {inv.id} • {new Date(inv.createdAt).toLocaleString([], { dateStyle: 'short' })}</p>
+                      <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">{inv.description}</h4>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-450 font-mono mt-0.5">ID: {inv.id} • {new Date(inv.createdAt).toLocaleString([], { dateStyle: 'short' })}</p>
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-sm font-extrabold text-slate-900 font-mono">${inv.amount.toFixed(2)}</span>
+                      <span className="text-sm font-extrabold text-slate-900 dark:text-white font-mono">{formatPrice(inv.amount)}</span>
                       
                       {inv.status === 'paid' ? (
-                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full uppercase">
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-500/15 dark:text-emerald-400 px-2.5 py-1 rounded-full uppercase">
                           Settled
                         </span>
                       ) : (
                         <button
                           id={`btn-pay-now-${inv.id}`}
                           onClick={() => setActivePaymentInvoice(inv)}
-                          className="text-[10px] font-bold text-white bg-[#0D9488] hover:opacity-95 px-3 py-1 rounded-full transition-opacity uppercase"
+                          className="text-[10px] font-bold text-white bg-[#0D9488] hover:opacity-95 px-3 py-1 rounded-full transition-opacity uppercase cursor-pointer"
                         >
                           Checkout
                         </button>
@@ -431,7 +432,7 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
                   </div>
                 ))
               ) : (
-                <div id="no-invoices" className="text-center py-6 text-xs text-slate-400 italic">
+                <div id="no-invoices" className="text-center py-6 text-xs text-slate-400 dark:text-slate-550 italic">
                   All billing transaction files cleared.
                 </div>
               )}
@@ -444,74 +445,74 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
 
       {/* SECURE STRIPE CHECKOUT SIMULATED MODAL */}
       {activePaymentInvoice && (
-        <div id="stripe-checkout-modal" className="fixed inset-0 z-50 overflow-y-auto bg-[#0F172A]/70 backdrop-blur-sm flex justify-center items-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 max-w-sm w-full relative overflow-hidden shadow-2xl animate-scale-up">
+        <div id="stripe-checkout-modal" className="fixed inset-0 z-50 overflow-y-auto bg-[#0F172A]/70 dark:bg-black/80 backdrop-blur-sm flex justify-center items-center p-4">
+          <div className="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200 dark:border-[#1F2937] p-6 max-w-sm w-full relative overflow-hidden shadow-2xl animate-scale-up transition-colors">
             
             {/* Design accents */}
             <div className="absolute top-0 left-0 right-0 h-2 bg-[#0D9488]" />
 
             <div className="flex justify-between items-start mb-4">
               <div>
-                <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold">L-SURE CHECKOUT</span>
-                <h3 className="font-bold text-base text-slate-900 mt-1">Surcharge Transaction settlement</h3>
+                <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded font-bold">L-SURE CHECKOUT</span>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white mt-1">Surcharge Transaction settlement</h3>
               </div>
               <button
                 id="btn-close-checkout"
                 onClick={() => setActivePaymentInvoice(null)}
-                className="text-slate-400 hover:text-slate-600 font-bold"
+                className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-350 font-bold cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-4 text-xs space-y-1.5">
+            <div className="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-xl border border-slate-100 dark:border-slate-850 mb-4 text-xs space-y-1.5">
               <div className="flex justify-between">
-                <span className="text-slate-500">Invoice Ref:</span>
+                <span className="text-slate-500 dark:text-slate-450">Invoice Ref:</span>
                 <span className="font-mono font-bold">{activePaymentInvoice.id}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Treatment:</span>
+                <span className="text-slate-500 dark:text-slate-450">Treatment:</span>
                 <span className="font-bold text-right truncate max-w-[180px]">{activePaymentInvoice.description}</span>
               </div>
-              <div className="flex justify-between border-t border-slate-200 mt-2 pt-2 text-sm">
+              <div className="flex justify-between border-t border-slate-200 dark:border-slate-850 mt-2 pt-2 text-sm">
                 <span className="font-bold">Total billing amount:</span>
-                <span className="font-mono font-extrabold text-[#0D9488]">${activePaymentInvoice.amount.toFixed(2)}</span>
+                <span className="font-mono font-extrabold text-[#0D9488]">{formatPrice(activePaymentInvoice.amount)}</span>
               </div>
             </div>
 
             <form onSubmit={handleSimulatePayment} className="space-y-4 text-xs font-semibold">
               <div>
-                <label htmlFor="card-num" className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Simulated Credit Card Number</label>
+                <label htmlFor="card-num" className="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1">Simulated Credit Card Number</label>
                 <input
                   id="card-num"
                   type="text"
                   value={billingNumber}
                   onChange={(e) => setBillingNumber(e.target.value)}
-                  className="w-full font-mono py-2 px-3 border border-slate-200 rounded-lg text-sm bg-slate-50"
+                  className="w-full font-mono py-2 px-3 border border-slate-200 dark:border-slate-850 rounded-lg text-sm bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-white"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="card-exp" className="block text-[10px] text-slate-400 uppercase font-bold mb-1">Expires End</label>
+                  <label htmlFor="card-exp" className="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1">Expires End</label>
                   <input
                     id="card-exp"
                     type="text"
                     value={billingExp}
                     onChange={(e) => setBillingExp(e.target.value)}
-                    className="w-full font-mono py-2 px-3 border border-slate-200 rounded-lg text-sm bg-slate-50"
+                    className="w-full font-mono py-2 px-3 border border-slate-200 dark:border-slate-850 rounded-lg text-sm bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-white"
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="card-cvc" className="block text-[10px] text-slate-400 uppercase font-bold mb-1">CVC Verification Keys</label>
+                  <label htmlFor="card-cvc" className="block text-[10px] text-slate-400 dark:text-slate-500 uppercase font-bold mb-1">CVC Verification Keys</label>
                   <input
                     id="card-cvc"
                     type="password"
                     value={billingCvc}
                     onChange={(e) => setBillingCvc(e.target.value)}
-                    className="w-full font-mono py-2 px-3 border border-slate-200 rounded-lg text-sm bg-slate-50"
+                    className="w-full font-mono py-2 px-3 border border-slate-200 dark:border-slate-850 rounded-lg text-sm bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-white"
                     required
                   />
                 </div>
@@ -521,13 +522,13 @@ export default function PatientPortal({ token, user }: PatientPortalProps) {
                 id="btn-process-simulated-payment"
                 type="submit"
                 disabled={checkoutIsPaying}
-                className="w-full py-2.5 bg-[#0D9488] hover:bg-slate-900 text-white font-bold rounded-xl text-center text-xs tracking-wider uppercase transition-colors"
+                className="w-full py-2.5 bg-[#0D9488] hover:bg-[#0b7a70] dark:bg-[#0D9488] dark:hover:bg-[#0b7a70] text-white font-bold rounded-xl text-center text-xs tracking-wider uppercase transition-colors cursor-pointer"
               >
-                {checkoutIsPaying ? 'Synchronising ledger with stripe...' : `Settle Bill of $${activePaymentInvoice.amount.toFixed(2)}`}
+                {checkoutIsPaying ? 'Synchronising ledger with stripe...' : `Settle Bill of ${formatPrice(activePaymentInvoice.amount)}`}
               </button>
             </form>
 
-            <span className="text-[9px] text-slate-400 font-medium block text-center mt-3">
+            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium block text-center mt-3">
               🔓 Secure 256-Bit SSL Encrypted Healthcare Payment Bridge.
             </span>
           </div>

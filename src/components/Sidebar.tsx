@@ -8,7 +8,9 @@ import {
   CreditCard, 
   ShieldAlert, 
   LogOut,
-  UserCheck
+  Settings,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { User } from '../types';
 
@@ -17,9 +19,11 @@ interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   onLogout: () => void;
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
 }
 
-export default function Sidebar({ user, activeTab, setActiveTab, onLogout }: SidebarProps) {
+export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme, toggleTheme }: SidebarProps) {
   const isAdmin = user.role === 'admin';
   const isDoctor = user.role === 'doctor';
   const isPatient = user.role === 'patient';
@@ -60,6 +64,12 @@ export default function Sidebar({ user, activeTab, setActiveTab, onLogout }: Sid
       label: 'HIPAA Security Logs',
       icon: ShieldAlert,
       roles: ['admin']
+    },
+    {
+      id: 'settings',
+      label: 'System Settings',
+      icon: Settings,
+      roles: ['admin', 'doctor', 'patient']
     }
   ];
 
@@ -69,14 +79,26 @@ export default function Sidebar({ user, activeTab, setActiveTab, onLogout }: Sid
     <div id="hms-sidebar" className="w-64 bg-[#0F172A] text-white flex flex-col justify-between h-full shadow-xl border-r border-[#1E293B]">
       {/* Brand Header */}
       <div>
-        <div className="p-6 flex items-center gap-3 border-b border-[#1E293B]">
-          <div className="bg-[#0D9488] p-2 rounded-lg text-white">
-            <Activity className="h-6 w-6 stroke-[2.5]" />
+        <div className="p-6 flex items-center justify-between border-b border-[#1E293B]">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#0D9488] p-2 rounded-lg text-white">
+              <Activity className="h-6 w-6 stroke-[2.5]" />
+            </div>
+            <div>
+              <h1 className="font-sans font-bold text-lg tracking-tight leading-none text-white">MediFlow HMS</h1>
+              <span className="text-[10px] text-[#94A3B8] font-mono tracking-widest uppercase">Clinical Suite</span>
+            </div>
           </div>
-          <div>
-            <h1 className="font-sans font-bold text-lg tracking-tight leading-none text-white">MediFlow HMS</h1>
-            <span className="text-[10px] text-[#94A3B8] font-mono tracking-widest uppercase">Clinical Suite</span>
-          </div>
+          
+          {/* Quick Theme Toggle Shortcut */}
+          <button
+            onClick={toggleTheme}
+            id="btn-sidebar-theme-toggle"
+            className="p-1.5 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#1E293B] transition-colors"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </button>
         </div>
 
         {/* User Badge Info */}
