@@ -13,7 +13,8 @@ import {
   Terminal,
   Activity,
   UserCheck,
-  Search
+  Search,
+  Trash2
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -64,6 +65,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
   const [docSpecialization, setDocSpecialization] = useState('Neurology');
   const [docScheduleHours, setDocScheduleHours] = useState('09:00 - 15:00');
   const [docScheduleDays, setDocScheduleDays] = useState<string[]>(['Monday', 'Wednesday']);
+  const [docPassword, setDocPassword] = useState('');
   const [docMessage, setDocMessage] = useState<string | null>(null);
 
   // New Offline Patient form
@@ -75,6 +77,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
   const [patOccupation, setPatOccupation] = useState('');
   const [patAddress, setPatAddress] = useState('');
   const [patMedicalHistory, setPatMedicalHistory] = useState('');
+  const [patPassword, setPatPassword] = useState('');
   const [patMessage, setPatMessage] = useState<string | null>(null);
   const [showPatModal, setShowPatModal] = useState(false);
   const [patSearchQuery, setPatSearchQuery] = useState('');
@@ -172,13 +175,15 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
           specialization: docSpecialization,
           departmentName: docSpecialization === 'Cardiology' ? 'Cardiovascular Wellness' : 'Neuroscience Division',
           scheduleDays: docScheduleDays,
-          scheduleHours: docScheduleHours
+          scheduleHours: docScheduleHours,
+          password: docPassword
         })
       });
       if (response.ok) {
-        setDocMessage('success:Physician registered successfully (default password: Doctor123).');
+        setDocMessage('success:Physician registered successfully.');
         setDocName('');
         setDocEmail('');
+        setDocPassword('');
         fetchAdminData();
       } else {
         const err = await response.json();
@@ -186,6 +191,26 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
       }
     } catch (e: any) {
       setDocMessage(`error:${e.message}`);
+    }
+  };
+
+  const handleDeleteDoctor = async (id: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this doctor account?')) return;
+    try {
+      const response = await fetch(`/api/doctors/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        fetchAdminData();
+      } else {
+        const err = await response.json();
+        alert(err.error || 'Server error deleting physician');
+      }
+    } catch (e: any) {
+      alert(e.message);
     }
   };
 
@@ -209,11 +234,12 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
           age: patAge,
           occupation: patOccupation,
           address: patAddress,
-          medicalHistorySummary: patMedicalHistory
+          medicalHistorySummary: patMedicalHistory,
+          password: patPassword
         })
       });
       if (response.ok) {
-        setPatMessage('success:Offline patient registered successfully (default password: Patient123).');
+        setPatMessage('success:Offline patient registered successfully.');
         setPatName('');
         setPatEmail('');
         setPatDob('');
@@ -221,6 +247,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
         setPatOccupation('');
         setPatAddress('');
         setPatMedicalHistory('');
+        setPatPassword('');
         fetchAdminData();
         setTimeout(() => {
           setShowPatModal(false);
@@ -232,6 +259,26 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
       }
     } catch (e: any) {
       setPatMessage(`error:${e.message}`);
+    }
+  };
+
+  const handleDeletePatient = async (id: string) => {
+    if (!window.confirm('Are you sure you want to permanently delete this patient account?')) return;
+    try {
+      const response = await fetch(`/api/patients/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.ok) {
+        fetchAdminData();
+      } else {
+        const err = await response.json();
+        alert(err.error || 'Server error deleting patient');
+      }
+    } catch (e: any) {
+      alert(e.message);
     }
   };
 
@@ -440,6 +487,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     <th className="p-4">Age</th>
                     <th className="p-4">Occupation</th>
                     <th className="p-4">Home Address</th>
+                    <th className="p-4 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -453,11 +501,20 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                         <td className="p-4">{p.age || 'N/A'}</td>
                         <td className="p-4">{p.occupation || 'N/A'}</td>
                         <td className="p-4 max-w-xs truncate" title={p.address}>{p.address || 'N/A'}</td>
+                        <td className="p-4 text-right">
+                          <button
+                            onClick={() => handleDeletePatient(p.id)}
+                            className="p-1.5 text-rose-505 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 rounded-lg transition-all focus:outline-none cursor-pointer"
+                            title="Delete Patient Account"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={7} className="p-8 text-center text-slate-400 dark:text-slate-500 italic">No patients match the search query.</td>
+                      <td colSpan={8} className="p-8 text-center text-slate-400 dark:text-slate-500 italic">No patients match the search query.</td>
                     </tr>
                   )}
                 </tbody>
@@ -513,6 +570,18 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                         className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase mb-1">Account Password</label>
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={patPassword}
+                      onChange={(e) => setPatPassword(e.target.value)}
+                      className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
+                    />
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
@@ -631,6 +700,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                       <th className="p-4">Specialization</th>
                       <th className="p-4">Department</th>
                       <th className="p-4">Assigned Hours</th>
+                      <th className="p-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
@@ -649,11 +719,20 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                             <div className="font-semibold">{d.schedule?.hours || 'N/A'}</div>
                             <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{(d.schedule?.days || []).join(', ')}</div>
                           </td>
+                          <td className="p-4 text-right">
+                            <button
+                              onClick={() => handleDeleteDoctor(d.id)}
+                              className="p-1.5 text-rose-505 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-500 hover:text-rose-700 dark:hover:text-rose-400 rounded-lg transition-all focus:outline-none cursor-pointer"
+                              title="Delete Doctor Account"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={4} className="p-8 text-center text-slate-400 dark:text-slate-500 italic">No specialist physicians found.</td>
+                        <td colSpan={5} className="p-8 text-center text-slate-400 dark:text-slate-500 italic">No specialist physicians found.</td>
                       </tr>
                     )}
                   </tbody>
@@ -700,6 +779,18 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     placeholder="watson@hospital.com"
                     value={docEmail}
                     onChange={(e) => setDocEmail(e.target.value)}
+                    className="w-full py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-500 dark:text-slate-450 mb-1">Account Password</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="••••••••"
+                    value={docPassword}
+                    onChange={(e) => setDocPassword(e.target.value)}
                     className="w-full py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
                   />
                 </div>

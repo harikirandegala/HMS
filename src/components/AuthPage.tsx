@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Activity, ShieldCheck, Mail, Lock, User as UserIcon, Calendar, FileCheck, Stethoscope } from 'lucide-react';
+import { Activity, ShieldCheck, Mail, Lock, User as UserIcon, Calendar, FileCheck, Stethoscope, Eye, EyeOff } from 'lucide-react';
 
 interface AuthPageProps {
   onLoginSuccess: (token: string, user: any) => void;
@@ -12,6 +12,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
   const [fullName, setFullName] = useState('');
   const [dob, setDob] = useState('');
   const [gender, setGender] = useState('Male');
+  const [showPassword, setShowPassword] = useState(false);
   
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -223,13 +224,20 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
                 </span>
                 <input
                   id="auth-password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 focus:outline-none focus:border-[#0D9488] text-sm text-slate-900 dark:text-white transition-colors"
+                  className="w-full pl-10 pr-10 py-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 focus:outline-none focus:border-[#0D9488] text-sm text-slate-900 dark:text-white transition-colors"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors focus:outline-none"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
             </div>
 

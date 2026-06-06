@@ -55,6 +55,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
   const [patOccupation, setPatOccupation] = useState('');
   const [patAddress, setPatAddress] = useState('');
   const [patMedicalHistory, setPatMedicalHistory] = useState('');
+  const [patPassword, setPatPassword] = useState('');
   const [patMessage, setPatMessage] = useState<string | null>(null);
   const [showPatForm, setShowPatForm] = useState(false);
 
@@ -78,7 +79,8 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
           age: patAge,
           occupation: patOccupation,
           address: patAddress,
-          medicalHistorySummary: patMedicalHistory
+          medicalHistorySummary: patMedicalHistory,
+          password: patPassword
         })
       });
       if (response.ok) {
@@ -90,6 +92,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
         setPatOccupation('');
         setPatAddress('');
         setPatMedicalHistory('');
+        setPatPassword('');
         fetchDoctorData();
         setTimeout(() => {
           setShowPatForm(false);
@@ -409,6 +412,18 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                           className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
                         />
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Account Password</label>
+                      <input
+                        type="password"
+                        required
+                        placeholder="••••••••"
+                        value={patPassword}
+                        onChange={(e) => setPatPassword(e.target.value)}
+                        className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
+                      />
                     </div>
 
                     <div className="grid grid-cols-3 gap-2.5">

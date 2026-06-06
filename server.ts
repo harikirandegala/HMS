@@ -462,7 +462,7 @@ app.post('/api/doctors', (req, res) => {
     return res.status(403).json({ error: 'Access restricted to administrators only.' });
   }
 
-  const { fullName, email, specialization, departmentName, scheduleDays, scheduleHours } = req.body;
+  const { fullName, email, specialization, departmentName, scheduleDays, scheduleHours, password } = req.body;
 
   if (!fullName || !email || !specialization || !departmentName || !scheduleDays || !scheduleHours) {
     return res.status(400).json({ error: 'All physician details are mandatory.' });
@@ -477,7 +477,7 @@ app.post('/api/doctors', (req, res) => {
   const newUser: InDbUser = {
     id: newId,
     email,
-    passwordHash: 'Doctor123', // Default password for newly registered doctors
+    passwordHash: password || 'Doctor123', // Default password for newly registered doctors
     role: 'doctor',
     fullName,
     avatarUrl: `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1622253692010-333f2da6031d' : '1594824813573-246434e33963'}?auto=format&fit=crop&q=80&w=200`,
@@ -505,6 +505,28 @@ app.post('/api/doctors', (req, res) => {
   res.status(201).json(newDoctor);
 });
 
+// DELETE /api/doctors/:id (Admins deleting physicians)
+app.delete('/api/doctors/:id', (req, res) => {
+  const user = authenticateSimulatedUser(req.headers);
+  if (!user || user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access restricted to administrators only.' });
+  }
+
+  const doctorId = req.params.id;
+  const doctorExists = dbData.doctors.some(d => d.id === doctorId);
+  if (!doctorExists) {
+    return res.status(404).json({ error: 'Physician not found.' });
+  }
+
+  const doctors = dbData.doctors.filter(d => d.id !== doctorId);
+  const users = dbData.users.filter(u => u.id !== doctorId);
+
+  saveDatabase({ ...dbData, users, doctors });
+  addAudit(user.fullName, 'DELETE_DOCTOR', `Deleted physician with ID ${doctorId}`);
+
+  res.status(200).json({ success: true, message: 'Physician deleted successfully.' });
+});
+
 // POST /api/patients/offline (Admins or doctors registering offline/walk-in patients)
 app.post('/api/patients/offline', (req, res) => {
   const user = authenticateSimulatedUser(req.headers);
@@ -512,7 +534,7 @@ app.post('/api/patients/offline', (req, res) => {
     return res.status(403).json({ error: 'Access restricted to authorized personnel only.' });
   }
 
-  const { email, fullName, dob, gender, age, occupation, address, medicalHistorySummary = '' } = req.body;
+  const { email, fullName, dob, gender, age, occupation, address, medicalHistorySummary = '', password } = req.body;
 
   if (!email || !fullName || !dob || !gender) {
     return res.status(400).json({ error: 'Email, Full Name, DOB, and Gender are mandatory fields.' });
@@ -527,7 +549,7 @@ app.post('/api/patients/offline', (req, res) => {
   const newUser: InDbUser = {
     id: newId,
     email,
-    passwordHash: 'Patient123', // Default password for walk-in patients
+    passwordHash: password || 'Patient123', // Default password for walk-in patients
     role: 'patient',
     fullName,
     avatarUrl: `https://images.unsplash.com/photo-${Math.random() > 0.5 ? '1534528741775-53994a69daeb' : '1507003211169-0a1dd7228f2d'}?auto=format&fit=crop&q=80&w=200`,
@@ -554,6 +576,28 @@ app.post('/api/patients/offline', (req, res) => {
   addAudit(user.fullName, 'REGISTER_OFFLINE_PATIENT', `Registered offline patient ${fullName} with ID ${newId}`);
 
   res.status(201).json(newPatient);
+});
+
+// DELETE /api/patients/:id (Admins deleting patients)
+app.delete('/api/patients/:id', (req, res) => {
+  const user = authenticateSimulatedUser(req.headers);
+  if (!user || user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access restricted to administrators only.' });
+  }
+
+  const patientId = req.params.id;
+  const patientExists = dbData.patients.some(p => p.id === patientId);
+  if (!patientExists) {
+    return res.status(404).json({ error: 'Patient not found.' });
+  }
+
+  const patients = dbData.patients.filter(p => p.id !== patientId);
+  const users = dbData.users.filter(u => u.id !== patientId);
+
+  saveDatabase({ ...dbData, users, patients });
+  addAudit(user.fullName, 'DELETE_PATIENT', `Deleted patient with ID ${patientId}`);
+
+  res.status(200).json({ success: true, message: 'Patient deleted successfully.' });
 });
 
 // GET /api/patients (Requires doctor or admin privileges)
