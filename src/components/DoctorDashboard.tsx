@@ -272,7 +272,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
         </div>
         <div className="bg-white dark:bg-[#111827] px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-800 text-xs transition-colors">
           <p className="font-semibold text-slate-600 dark:text-slate-400">Assigned Ward Hours</p>
-          <p className="font-bold text-[#0D9488] mt-0.5">Mon - Thurs, 08:00 - 14:00 (EST)</p>
+          <p className="font-bold text-[#0D9488] mt-0.5">Mon - Thurs, 08:00 - 14:00 (IST)</p>
         </div>
       </div>
 
@@ -315,8 +315,8 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                           {apt.status}
                         </span>
                       </div>
-                      <p className="text-[10px] text-zinc-400 dark:text-slate-500 font-bold font-mono mt-0.5">
-                        📆 {new Date(apt.startTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                      <p className="text-[10px] text-zinc-450 dark:text-slate-500 font-bold font-mono mt-0.5">
+                        📆 {new Date(apt.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}
                       </p>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 lines-clamp-2 italic">"{apt.reason}"</p>
                     </div>

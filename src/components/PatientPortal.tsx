@@ -407,7 +407,7 @@ export default function PatientPortal({ token, user, formatPrice, activeTab, onU
                       <div>
                         <h4 className="font-bold text-xs text-slate-850 dark:text-slate-200">Doctor: {apt.doctorName}</h4>
                         <p className="text-[10px] text-zinc-400 dark:text-slate-550 font-bold font-mono mt-0.5">
-                          ⏰ {new Date(apt.startTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                          ⏰ {new Date(apt.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}
                         </p>
                         <p className="text-xs text-slate-500 dark:text-slate-400 italic mt-1.5">"{apt.reason}"</p>
                       </div>
@@ -530,7 +530,7 @@ export default function PatientPortal({ token, user, formatPrice, activeTab, onU
                   <div key={inv.id} id={`invoice-${inv.id}`} className="p-3 border.5 border-slate-100 dark:border-slate-850 rounded-xl bg-slate-50/50 dark:bg-slate-900/30 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200 truncate">{inv.description}</h4>
-                      <p className="text-[10px] text-slate-500 dark:text-slate-450 font-mono mt-0.5">ID: {inv.id} • {new Date(inv.createdAt).toLocaleString([], { dateStyle: 'short' })}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-450 font-mono mt-0.5">ID: {inv.id} • {new Date(inv.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'short' })}</p>
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">

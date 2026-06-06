@@ -328,6 +328,8 @@ async function loadDatabase() {
 
 async function saveDatabase(newData: DbSchema) {
   dbData = newData;
+  // Always save locally to ensure fallback is kept up-to-date
+  saveLocalDatabase(newData);
   if (supabase) {
     try {
       const { error } = await supabase
@@ -337,11 +339,8 @@ async function saveDatabase(newData: DbSchema) {
       if (error) throw error;
       console.log('[DATABASE] Saved database state to Supabase.');
     } catch (e) {
-      console.error('[DATABASE] Failed to save state to Supabase. Saving locally...', e);
-      saveLocalDatabase(newData);
+      console.error('[DATABASE] Failed to save state to Supabase.', e);
     }
-  } else {
-    saveLocalDatabase(newData);
   }
 }
 

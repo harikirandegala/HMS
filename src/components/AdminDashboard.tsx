@@ -62,7 +62,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
   // New Doctor account form
   const [docName, setDocName] = useState('');
   const [docEmail, setDocEmail] = useState('');
-  const [docSpecialization, setDocSpecialization] = useState('Neurology');
+  const [docSpecialization, setDocSpecialization] = useState('General Physician');
   const [docScheduleHours, setDocScheduleHours] = useState('09:00 - 15:00');
   const [docScheduleDays, setDocScheduleDays] = useState<string[]>(['Monday', 'Wednesday']);
   const [docPassword, setDocPassword] = useState('');
@@ -173,7 +173,14 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
           fullName: docName,
           email: docEmail,
           specialization: docSpecialization,
-          departmentName: docSpecialization === 'Cardiology' ? 'Cardiovascular Wellness' : 'Neuroscience Division',
+          departmentName: 
+            docSpecialization === 'Cardiology' ? 'Cardiovascular Wellness' :
+            docSpecialization === 'Neurology' ? 'Neuroscience Division' :
+            docSpecialization === 'General Physician' ? 'General Medicine Division' :
+            docSpecialization === 'Pediatrics' ? 'Pediatrics Clinic' :
+            docSpecialization === 'Orthopedics' ? 'Orthopedic Surgery Unit' :
+            docSpecialization === 'Dermatology' ? 'Dermatology & Skin Care' :
+            'Clinical Services',
           scheduleDays: docScheduleDays,
           scheduleHours: docScheduleHours,
           password: docPassword
@@ -803,11 +810,13 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                       onChange={(e) => setDocSpecialization(e.target.value)}
                       className="w-full py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none cursor-pointer"
                     >
+                      <option>General Physician</option>
                       <option>Neurology</option>
                       <option>Cardiology</option>
                       <option>Pediatrics</option>
                       <option>Orthopedics</option>
                       <option>Dermatology</option>
+                      <option>Other</option>
                     </select>
                   </div>
                   <div>
@@ -826,7 +835,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                 <div>
                   <label className="block font-bold text-slate-500 dark:text-slate-450 mb-1">Duty Days Selection</label>
                   <div className="flex flex-wrap gap-2 pt-1">
-                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map(d => {
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(d => {
                       const isSelected = docScheduleDays.includes(d);
                       return (
                         <button
@@ -901,8 +910,8 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                             <h4 className="font-bold text-xs text-slate-900 dark:text-white">{apt.patientName}</h4>
                             <span className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold font-mono">→ with {apt.doctorName}</span>
                           </div>
-                          <p className="text-[10px] text-zinc-400 dark:text-slate-550 font-bold font-mono">
-                            📆 {new Date(apt.startTime).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                          <p className="text-[10px] text-zinc-450 dark:text-slate-550 font-bold font-mono">
+                            📆 {new Date(apt.startTime).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' })}
                           </p>
                           <p className="text-xs text-slate-500 dark:text-slate-400 italic">"{apt.reason}"</p>
                         </div>
@@ -1354,7 +1363,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     logs.map((log, index) => (
                       <div key={index} id={`audit-log-${index}`} className="border-b border-slate-800/60 pb-2 hover:bg-slate-900/50 p-1 rounded transition-colors">
                         <div className="flex justify-between text-slate-400">
-                          <span>[{new Date(log.timestamp).toLocaleTimeString()}]</span>
+                          <span>[{new Date(log.timestamp).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' })}]</span>
                           <span className="font-bold text-amber-400">{log.action}</span>
                         </div>
                         <p className="mt-1 text-slate-300">
