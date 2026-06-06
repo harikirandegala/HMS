@@ -32,10 +32,12 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Initialize Supabase if DATABASE_TYPE is configured
-const supabaseUrl = process.env.SUPABASE_URL || '';
-const supabaseKey = process.env.SUPABASE_KEY || '';
-const supabase = (process.env.DATABASE_TYPE === 'Supabase' && supabaseUrl && supabaseKey)
+// Initialize Supabase if DATABASE_TYPE is configured (with robust URL check and fallbacks)
+const rawSupabaseUrl = process.env.SUPABASE_URL || 'zaiqdetznfouiqztkser.supabase.co';
+const supabaseUrl = rawSupabaseUrl ? (rawSupabaseUrl.startsWith('http') ? rawSupabaseUrl : `https://${rawSupabaseUrl}`) : '';
+const supabaseKey = process.env.SUPABASE_KEY || 'sb_publishable_Hq9my4inLvIBqM2om2qxtQ_u7pDrifz';
+const databaseType = process.env.DATABASE_TYPE || 'Supabase';
+const supabase = (databaseType === 'Supabase' && supabaseUrl && supabaseKey)
   ? createClient(supabaseUrl, supabaseKey)
   : null;
 
