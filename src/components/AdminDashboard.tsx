@@ -14,7 +14,8 @@ import {
   Activity,
   UserCheck,
   Search,
-  Trash2
+  Trash2,
+  ChevronDown
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -614,15 +615,20 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     </div>
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase mb-1">Gender</label>
-                      <select
-                        value={patGender}
-                        onChange={(e) => setPatGender(e.target.value)}
-                        className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none cursor-pointer"
-                      >
-                        <option>Male</option>
-                        <option>Female</option>
-                        <option>Other</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={patGender}
+                          onChange={(e) => setPatGender(e.target.value)}
+                          className="w-full text-xs h-10 pl-3 pr-8 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none appearance-none cursor-pointer"
+                        >
+                          <option className="dark:bg-[#111827]">Male</option>
+                          <option className="dark:bg-[#111827]">Female</option>
+                          <option className="dark:bg-[#111827]">Other</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                          <ChevronDown className="h-4 w-4" />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -815,19 +821,24 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-500 dark:text-slate-450 mb-1">Specialization</label>
-                    <select
-                      value={docSpecialization}
-                      onChange={(e) => setDocSpecialization(e.target.value)}
-                      className={`w-full py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none cursor-pointer ${docSpecialization === 'Other' ? 'mb-2' : ''}`}
-                    >
-                      <option>General Physician</option>
-                      <option>Neurology</option>
-                      <option>Cardiology</option>
-                      <option>Pediatrics</option>
-                      <option>Orthopedics</option>
-                      <option>Dermatology</option>
-                      <option>Other</option>
-                    </select>
+                    <div className={`relative ${docSpecialization === 'Other' ? 'mb-2' : ''}`}>
+                      <select
+                        value={docSpecialization}
+                        onChange={(e) => setDocSpecialization(e.target.value)}
+                        className="w-full py-2.5 pl-3 pr-8 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none appearance-none cursor-pointer"
+                      >
+                        <option className="dark:bg-[#111827]">General Physician</option>
+                        <option className="dark:bg-[#111827]">Neurology</option>
+                        <option className="dark:bg-[#111827]">Cardiology</option>
+                        <option className="dark:bg-[#111827]">Pediatrics</option>
+                        <option className="dark:bg-[#111827]">Orthopedics</option>
+                        <option className="dark:bg-[#111827]">Dermatology</option>
+                        <option className="dark:bg-[#111827]">Other</option>
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                        <ChevronDown className="h-4 w-4" />
+                      </div>
+                    </div>
                     {docSpecialization === 'Other' && (
                       <input
                         type="text"
@@ -1048,18 +1059,23 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                   <form onSubmit={handleInvoiceSubmit} className="space-y-4 text-xs">
                     <div>
                       <label htmlFor="inv-patient" className="block font-bold text-slate-500 dark:text-slate-400 mb-1">Select Hospitalized Patient</label>
-                      <select
-                        id="inv-patient"
-                        value={invPatientId}
-                        onChange={(e) => setInvPatientId(e.target.value)}
-                        className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none transition-colors cursor-pointer"
-                        required
-                      >
-                        <option value="" className="dark:bg-[#111827]">-- Choose Patient Account --</option>
-                        {patients.map(p => (
-                          <option key={p.id} value={p.id} className="dark:bg-[#111827]">{p.fullName}</option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          id="inv-patient"
+                          value={invPatientId}
+                          onChange={(e) => setInvPatientId(e.target.value)}
+                          className="w-full text-xs py-2.5 pl-3 pr-8 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none appearance-none cursor-pointer transition-colors"
+                          required
+                        >
+                          <option value="" className="dark:bg-[#111827]">-- Choose Patient Account --</option>
+                          {patients.map(p => (
+                            <option key={p.id} value={p.id} className="dark:bg-[#111827]">{p.fullName}</option>
+                          ))}
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                          <ChevronDown className="h-4 w-4" />
+                        </div>
+                      </div>
                     </div>
 
                     <div>
@@ -1078,17 +1094,22 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     <div className="grid grid-cols-3 gap-3">
                       <div className="col-span-1">
                         <label htmlFor="inv-currency" className="block font-bold text-slate-500 dark:text-slate-400 mb-1">Currency</label>
-                        <select
-                          id="inv-currency"
-                          value={invCurrency}
-                          onChange={(e) => setInvCurrency(e.target.value as any)}
-                          className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none cursor-pointer"
-                        >
-                          <option value="INR">INR (₹)</option>
-                          <option value="USD">USD ($)</option>
-                          <option value="EUR">EUR (€)</option>
-                          <option value="GBP">GBP (£)</option>
-                        </select>
+                        <div className="relative">
+                          <select
+                            id="inv-currency"
+                            value={invCurrency}
+                            onChange={(e) => setInvCurrency(e.target.value as any)}
+                            className="w-full text-xs py-2.5 pl-3 pr-8 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none appearance-none cursor-pointer"
+                          >
+                            <option value="INR">INR (₹)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
+                            <option value="GBP">GBP (£)</option>
+                          </select>
+                          <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                            <ChevronDown className="h-4 w-4" />
+                          </div>
+                        </div>
                       </div>
 
                       <div className="col-span-2">
@@ -1291,18 +1312,23 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                 <form onSubmit={handleInvoiceSubmit} className="space-y-4 text-xs font-sans">
                   <div>
                     <label htmlFor="inv-patient" className="block font-bold text-slate-500 dark:text-slate-450 mb-1">Select Hospitalized Patient</label>
-                    <select
-                      id="inv-patient"
-                      value={invPatientId}
-                      onChange={(e) => setInvPatientId(e.target.value)}
-                      className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none transition-colors cursor-pointer"
-                      required
-                    >
-                      <option value="" className="dark:bg-[#111827]">-- Choose Patient Account --</option>
-                      {patients.map(p => (
-                        <option key={p.id} value={p.id} className="dark:bg-[#111827]">{p.fullName}</option>
-                      ))}
-                    </select>
+                    <div className="relative">
+                      <select
+                        id="inv-patient"
+                        value={invPatientId}
+                        onChange={(e) => setInvPatientId(e.target.value)}
+                        className="w-full text-xs py-2.5 pl-3 pr-8 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none appearance-none cursor-pointer transition-colors"
+                        required
+                      >
+                        <option value="" className="dark:bg-[#111827]">-- Choose Patient Account --</option>
+                        {patients.map(p => (
+                          <option key={p.id} value={p.id} className="dark:bg-[#111827]">{p.fullName}</option>
+                        ))}
+                      </select>
+                      <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                        <ChevronDown className="h-4 w-4" />
+                      </div>
+                    </div>
                   </div>
 
                   <div>
@@ -1321,17 +1347,22 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                   <div className="grid grid-cols-3 gap-3">
                     <div className="col-span-1">
                       <label htmlFor="inv-currency" className="block font-bold text-slate-500 dark:text-slate-450 mb-1">Currency</label>
-                      <select
-                        id="inv-currency"
-                        value={invCurrency}
-                        onChange={(e) => setInvCurrency(e.target.value as any)}
-                        className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none transition-colors cursor-pointer"
-                      >
-                        <option value="INR">INR (₹)</option>
-                        <option value="USD">USD ($)</option>
-                        <option value="EUR">EUR (€)</option>
-                        <option value="GBP">GBP (£)</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          id="inv-currency"
+                          value={invCurrency}
+                          onChange={(e) => setInvCurrency(e.target.value as any)}
+                          className="w-full text-xs py-2.5 pl-3 pr-8 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none appearance-none cursor-pointer transition-colors"
+                        >
+                          <option value="INR">INR (₹)</option>
+                          <option value="USD">USD ($)</option>
+                          <option value="EUR">EUR (€)</option>
+                          <option value="GBP">GBP (£)</option>
+                        </select>
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                          <ChevronDown className="h-4 w-4" />
+                        </div>
+                      </div>
                     </div>
 
                     <div className="col-span-2">
