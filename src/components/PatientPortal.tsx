@@ -11,7 +11,8 @@ import {
   CheckCircle,
   HelpCircle,
   XCircle,
-  AlertTriangle
+  AlertTriangle,
+  ChevronDown
 } from 'lucide-react';
 import { Appointment, MedicalRecord, Invoice, Doctor } from '../types';
 
@@ -266,7 +267,7 @@ export default function PatientPortal({ token, user, formatPrice, activeTab, onU
               </div>
 
               <div className="space-y-3.5 text-xs">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <span className="text-[10px] text-slate-400 dark:text-slate-550 uppercase font-semibold">Full Name</span>
                     <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{patientProfile?.fullName || user.fullName}</p>
@@ -279,7 +280,7 @@ export default function PatientPortal({ token, user, formatPrice, activeTab, onU
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <span className="text-[10px] text-slate-400 dark:text-slate-550 uppercase font-semibold">Occupation</span>
                     <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">{patientProfile?.occupation || 'N/A'}</p>
@@ -323,21 +324,26 @@ export default function PatientPortal({ token, user, formatPrice, activeTab, onU
             <form onSubmit={handleBookSlot} className="space-y-4 text-xs">
               <div>
                 <label htmlFor="slot-doctor" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Pick a Certified Specialist</label>
-                <select
-                  id="slot-doctor"
-                  value={selectedDoctorId}
-                  onChange={(e) => setSelectedDoctorId(e.target.value)}
-                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] cursor-pointer"
-                  required
-                >
-                  <option value="" className="text-slate-800 dark:text-slate-200">-- Choose Specialist Physician --</option>
-                  {doctors.map(d => (
-                    <option key={d.id} value={d.id} className="text-slate-800 dark:text-slate-200">{d.fullName} ({d.specialization})</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    id="slot-doctor"
+                    value={selectedDoctorId}
+                    onChange={(e) => setSelectedDoctorId(e.target.value)}
+                    className="w-full text-xs py-2 pl-3 pr-8 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] appearance-none cursor-pointer"
+                    required
+                  >
+                    <option value="" className="text-slate-800 dark:text-slate-200 dark:bg-[#111827]">-- Choose Specialist Physician --</option>
+                    {doctors.map(d => (
+                      <option key={d.id} value={d.id} className="text-slate-800 dark:text-slate-200 dark:bg-[#111827]">{d.fullName} ({d.specialization})</option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                    <ChevronDown className="h-4 w-4" />
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="slot-date" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Clinic Date</label>
                   <input
@@ -353,17 +359,22 @@ export default function PatientPortal({ token, user, formatPrice, activeTab, onU
 
                 <div>
                   <label htmlFor="slot-time" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Clinic Hours Slot</label>
-                  <select
-                    id="slot-time"
-                    value={selectedTimeSlot}
-                    onChange={(e) => setSelectedTimeSlot(e.target.value)}
-                    className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] cursor-pointer"
-                    required
-                  >
-                    {timeSlots.map(ts => (
-                      <option key={ts} value={ts} className="text-slate-800 dark:text-slate-200">{ts}</option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      id="slot-time"
+                      value={selectedTimeSlot}
+                      onChange={(e) => setSelectedTimeSlot(e.target.value)}
+                      className="w-full text-xs py-2 pl-3 pr-8 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] appearance-none cursor-pointer"
+                      required
+                    >
+                      {timeSlots.map(ts => (
+                        <option key={ts} value={ts} className="text-slate-800 dark:text-slate-200 dark:bg-[#111827]">{ts}</option>
+                      ))}
+                    </select>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                      <ChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -622,18 +633,23 @@ export default function PatientPortal({ token, user, formatPrice, activeTab, onU
 
               <div>
                 <label htmlFor="profile-gender" className="block text-[10px] uppercase font-bold text-slate-400 dark:text-slate-500 mb-1">Registered Gender</label>
-                <select
-                  id="profile-gender"
-                  value={profileGender}
-                  onChange={(e) => setProfileGender(e.target.value)}
-                  className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] cursor-pointer"
-                  required
-                >
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Non-binary">Non-binary</option>
-                  <option value="Other">Other</option>
-                </select>
+                <div className="relative">
+                  <select
+                    id="profile-gender"
+                    value={profileGender}
+                    onChange={(e) => setProfileGender(e.target.value)}
+                    className="w-full text-xs py-2 pl-3 pr-8 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488] appearance-none cursor-pointer"
+                    required
+                  >
+                    <option value="Male" className="dark:bg-[#111827]">Male</option>
+                    <option value="Female" className="dark:bg-[#111827]">Female</option>
+                    <option value="Non-binary" className="dark:bg-[#111827]">Non-binary</option>
+                    <option value="Other" className="dark:bg-[#111827]">Other</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
+                    <ChevronDown className="h-4 w-4" />
+                  </div>
+                </div>
               </div>
             </div>
 

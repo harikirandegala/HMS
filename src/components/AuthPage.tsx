@@ -88,7 +88,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg">
-        <div className="bg-white dark:bg-[#111827] py-8 px-6 shadow-xl rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] relative overflow-hidden transition-colors">
+        <div className="bg-white dark:bg-[#111827] p-5 sm:p-8 shadow-xl rounded-2xl border border-[#E2E8F0] dark:border-[#1F2937] relative overflow-hidden transition-colors">
           
           {/* Subtle decoration bar */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#0D9488]" />
@@ -154,7 +154,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="reg-dob" className="block text-xs font-semibold text-[#475569] dark:text-slate-400 uppercase tracking-wider mb-1">
                       Date of Birth

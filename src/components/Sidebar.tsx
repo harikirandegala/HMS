@@ -12,7 +12,8 @@ import {
   Sun,
   Moon,
   User as UserIcon,
-  Stethoscope
+  Stethoscope,
+  X
 } from 'lucide-react';
 import { User } from '../types';
 
@@ -23,9 +24,11 @@ interface SidebarProps {
   onLogout: () => void;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme, toggleTheme }: SidebarProps) {
+export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme, toggleTheme, isOpen, onClose }: SidebarProps) {
   const isAdmin = user.role === 'admin';
   const isDoctor = user.role === 'doctor';
   const isPatient = user.role === 'patient';
@@ -84,7 +87,12 @@ export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme
   const filteredItems = menuItems.filter(item => item.roles.includes(user.role));
 
   return (
-    <div id="hms-sidebar" className="w-64 bg-[#0F172A] text-white flex flex-col justify-between h-full shadow-xl border-r border-[#1E293B]">
+    <div 
+      id="hms-sidebar" 
+      className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#0F172A] text-white flex flex-col justify-between h-full shadow-xl border-r border-[#1E293B] transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}
+    >
       {/* Brand Header */}
       <div>
         <div className="p-6 flex items-center justify-between border-b border-[#1E293B]">
@@ -98,15 +106,26 @@ export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme
             </div>
           </div>
           
-          {/* Quick Theme Toggle Shortcut */}
-          <button
-            onClick={toggleTheme}
-            id="btn-sidebar-theme-toggle"
-            className="p-1.5 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#1E293B] transition-colors"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          >
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
+          <div className="flex items-center gap-1">
+            {/* Quick Theme Toggle Shortcut */}
+            <button
+              onClick={toggleTheme}
+              id="btn-sidebar-theme-toggle"
+              className="p-1.5 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#1E293B] transition-colors cursor-pointer"
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
+
+            {/* Mobile Sidebar Close Button */}
+            <button
+              onClick={onClose}
+              className="lg:hidden p-1.5 rounded-lg text-[#94A3B8] hover:text-white hover:bg-[#1E293B] transition-colors cursor-pointer"
+              aria-label="Close sidebar"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {/* User Badge Info */}
@@ -136,7 +155,7 @@ export default function Sidebar({ user, activeTab, setActiveTab, onLogout, theme
               <button
                 key={item.id}
                 id={`sidebar-tab-${item.id}`}
-                onClick={() => setActiveTab(item.id)}
+                onClick={() => { setActiveTab(item.id); onClose(); }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all group duration-200 relative ${
                   isActive 
                     ? 'bg-[#0D9488]/10 text-[#0D9488]' 

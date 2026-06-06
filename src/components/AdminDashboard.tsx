@@ -565,7 +565,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase mb-1">Full Name</label>
                       <input
@@ -602,7 +602,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase mb-1">Date of Birth</label>
                       <input
@@ -632,7 +632,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase mb-1">Age</label>
                       <input

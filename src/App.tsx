@@ -5,6 +5,7 @@ import AdminDashboard from './components/AdminDashboard';
 import DoctorDashboard from './components/DoctorDashboard';
 import PatientPortal from './components/PatientPortal';
 import SettingsPanel from './components/SettingsPanel';
+import { Menu, Activity, Sun, Moon } from 'lucide-react';
 import { User } from './types';
 
 export interface SystemSettings {
@@ -16,6 +17,7 @@ export default function App() {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Persistent system-wide settings
   const [settings, setSettings] = useState<SystemSettings>(() => {
@@ -154,10 +156,48 @@ export default function App() {
         // Auth gate
         <AuthPage onLoginSuccess={handleLoginSuccess} />
       ) : (
-        // Main multi-screen layout
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
           
-          {/* Persistent medical sidebar */}
+          {/* Mobile Sticky Top Bar */}
+          <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-[#0F172A] text-white border-b border-[#1E293B] sticky top-0 z-35 shadow-sm shrink-0">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-1.5 hover:bg-[#1E293B] rounded-lg transition-colors text-[#94A3B8] hover:text-white cursor-pointer"
+                aria-label="Open sidebar"
+              >
+                <Menu className="h-5 w-5" />
+              </button>
+              <div className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-[#0D9488]" />
+                <span className="font-bold text-sm tracking-tight">MediFlow HMS</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={toggleTheme}
+                className="p-1.5 hover:bg-[#1E293B] rounded-lg transition-colors text-[#94A3B8] hover:text-white cursor-pointer"
+                title={settings.theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              >
+                {settings.theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+              <img 
+                src={user.avatarUrl || 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=200'} 
+                alt={user.fullName}
+                className="w-7 h-7 rounded-full object-cover border border-[#0D9488]"
+              />
+            </div>
+          </div>
+
+          {/* Backdrop overlay for mobile drawer */}
+          {isSidebarOpen && (
+            <div 
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+          )}
+
+          {/* Collapsible / Drawer medical sidebar */}
           <Sidebar 
             user={user} 
             activeTab={activeTab} 
@@ -165,10 +205,12 @@ export default function App() {
             onLogout={handleLogout} 
             theme={settings.theme}
             toggleTheme={toggleTheme}
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
           />
 
           {/* Core Content area */}
-          <main className="flex-1 overflow-y-auto px-8 py-8 md:px-12 bg-[#F8FAFC] dark:bg-[#0B0F19]">
+          <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#F8FAFC] dark:bg-[#0B0F19] transition-colors duration-200">
             <div className="max-w-7xl mx-auto">
               {renderActiveScreen()}
             </div>

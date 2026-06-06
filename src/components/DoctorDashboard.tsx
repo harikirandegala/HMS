@@ -389,7 +389,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                       </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div>
                         <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Name</label>
                         <input
@@ -426,8 +426,8 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                       />
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2.5">
-                      <div className="col-span-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      <div className="sm:col-span-2">
                         <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">DOB</label>
                         <input
                           type="date"
@@ -451,7 +451,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                       <div>
                         <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Age</label>
                         <input
@@ -462,7 +462,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                           className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
                         />
                       </div>
-                      <div className="col-span-2">
+                      <div className="sm:col-span-2">
                         <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Occupation</label>
                         <input
                           type="text"
@@ -505,7 +505,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                   </form>
                 ) : (
                   <>
-                    <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/10 flex gap-2 items-center">
+                    <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40 flex gap-2 items-center">
                       <Search className="h-4 w-4 text-slate-400 dark:text-slate-550" />
                       <input
                         id="patient-search-input"
@@ -568,7 +568,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                 </span>
                 <h3 className="text-lg font-bold text-[#0F172A] dark:text-white mt-2">{selectedPatient.fullName}</h3>
                 
-                <div className="grid grid-cols-3 gap-4 mt-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4 text-xs">
                   <div>
                     <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Age / Birth Date</span>
                     <p className="font-bold text-slate-800 dark:text-slate-200 mt-0.5">
