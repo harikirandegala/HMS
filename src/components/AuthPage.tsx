@@ -116,7 +116,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
               }`}
               onClick={() => { setIsRegister(false); setError(null); }}
             >
-              Sign In to Suite
+              Sign In
             </button>
             <button
               id="auth-tab-register"
@@ -261,7 +261,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
           {/* Quick Demo Access Trigger */}
           <div className="mt-8 pt-6 border-t border-[#E2E8F0] dark:border-slate-850">
             <p className="text-center text-[11px] text-slate-500 dark:text-slate-400 font-semibold mb-3 tracking-wider uppercase">
-              Demonstration & Verification Roles (Audit Logs Sandbox)
+              Demonstration & Verification Roles
             </p>
             <div className="space-y-2">
               {demoAccounts.map((account) => (

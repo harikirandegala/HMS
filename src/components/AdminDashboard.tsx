@@ -63,6 +63,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
   const [docName, setDocName] = useState('');
   const [docEmail, setDocEmail] = useState('');
   const [docSpecialization, setDocSpecialization] = useState('General Physician');
+  const [customSpecialization, setCustomSpecialization] = useState('');
   const [docScheduleHours, setDocScheduleHours] = useState('09:00 - 15:00');
   const [docScheduleDays, setDocScheduleDays] = useState<string[]>(['Monday', 'Wednesday']);
   const [docPassword, setDocPassword] = useState('');
@@ -162,6 +163,21 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
     setDocMessage(null);
     if (!docName || !docEmail || !docSpecialization || !docScheduleHours) return;
 
+    const specializationValue = docSpecialization === 'Other' ? customSpecialization : docSpecialization;
+    if (docSpecialization === 'Other' && !customSpecialization.trim()) {
+      setDocMessage('error:Please specify the custom specialization.');
+      return;
+    }
+
+    const departmentNameValue = 
+      specializationValue === 'Cardiology' ? 'Cardiovascular Wellness' :
+      specializationValue === 'Neurology' ? 'Neuroscience Division' :
+      specializationValue === 'General Physician' ? 'General Medicine Division' :
+      specializationValue === 'Pediatrics' ? 'Pediatrics Clinic' :
+      specializationValue === 'Orthopedics' ? 'Orthopedic Surgery Unit' :
+      specializationValue === 'Dermatology' ? 'Dermatology & Skin Care' :
+      specializationValue ? `${specializationValue} Department` : 'Clinical Services';
+
     try {
       const response = await fetch('/api/doctors', {
         method: 'POST',
@@ -172,15 +188,8 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
         body: JSON.stringify({
           fullName: docName,
           email: docEmail,
-          specialization: docSpecialization,
-          departmentName: 
-            docSpecialization === 'Cardiology' ? 'Cardiovascular Wellness' :
-            docSpecialization === 'Neurology' ? 'Neuroscience Division' :
-            docSpecialization === 'General Physician' ? 'General Medicine Division' :
-            docSpecialization === 'Pediatrics' ? 'Pediatrics Clinic' :
-            docSpecialization === 'Orthopedics' ? 'Orthopedic Surgery Unit' :
-            docSpecialization === 'Dermatology' ? 'Dermatology & Skin Care' :
-            'Clinical Services',
+          specialization: specializationValue,
+          departmentName: departmentNameValue,
           scheduleDays: docScheduleDays,
           scheduleHours: docScheduleHours,
           password: docPassword
@@ -191,6 +200,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
         setDocName('');
         setDocEmail('');
         setDocPassword('');
+        setCustomSpecialization('');
         fetchAdminData();
       } else {
         const err = await response.json();
@@ -563,7 +573,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                         placeholder="John Doe"
                         value={patName}
                         onChange={(e) => setPatName(e.target.value)}
-                        className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
+                        className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
                       />
                     </div>
                     <div>
@@ -574,7 +584,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                         placeholder="john@example.com"
                         value={patEmail}
                         onChange={(e) => setPatEmail(e.target.value)}
-                        className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
+                        className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
                       />
                     </div>
                   </div>
@@ -587,19 +597,19 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                       placeholder="••••••••"
                       value={patPassword}
                       onChange={(e) => setPatPassword(e.target.value)}
-                      className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
+                      className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
                     />
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="col-span-2">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase mb-1">Date of Birth</label>
                       <input
                         type="date"
                         required
                         value={patDob}
                         onChange={(e) => setPatDob(e.target.value)}
-                        className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
+                        className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
                       />
                     </div>
                     <div>
@@ -607,7 +617,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                       <select
                         value={patGender}
                         onChange={(e) => setPatGender(e.target.value)}
-                        className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none cursor-pointer"
+                        className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none cursor-pointer"
                       >
                         <option>Male</option>
                         <option>Female</option>
@@ -616,7 +626,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase mb-1">Age</label>
                       <input
@@ -624,17 +634,17 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                         placeholder="35"
                         value={patAge}
                         onChange={(e) => setPatAge(e.target.value)}
-                        className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
+                        className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
                       />
                     </div>
-                    <div className="col-span-2">
+                    <div>
                       <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase mb-1">Occupation</label>
                       <input
                         type="text"
                         placeholder="Engineer"
                         value={patOccupation}
                         onChange={(e) => setPatOccupation(e.target.value)}
-                        className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
+                        className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
                       />
                     </div>
                   </div>
@@ -646,7 +656,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                       placeholder="123 Main St, City"
                       value={patAddress}
                       onChange={(e) => setPatAddress(e.target.value)}
-                      className="w-full text-xs py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
+                      className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
                     />
                   </div>
 
@@ -808,7 +818,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     <select
                       value={docSpecialization}
                       onChange={(e) => setDocSpecialization(e.target.value)}
-                      className="w-full py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none cursor-pointer"
+                      className={`w-full py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none cursor-pointer ${docSpecialization === 'Other' ? 'mb-2' : ''}`}
                     >
                       <option>General Physician</option>
                       <option>Neurology</option>
@@ -818,6 +828,16 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                       <option>Dermatology</option>
                       <option>Other</option>
                     </select>
+                    {docSpecialization === 'Other' && (
+                      <input
+                        type="text"
+                        required
+                        placeholder="Specify Specialization"
+                        value={customSpecialization}
+                        onChange={(e) => setCustomSpecialization(e.target.value)}
+                        className="w-full py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none text-xs"
+                      />
+                    )}
                   </div>
                   <div>
                     <label className="block font-bold text-slate-500 dark:text-slate-450 mb-1">Consulting Hours</label>
