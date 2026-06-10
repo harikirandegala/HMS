@@ -395,7 +395,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                         <input
                           type="text"
                           required
-                          placeholder="John Doe"
+                          placeholder="G. Rama Rao"
                           value={patName}
                           onChange={(e) => setPatName(e.target.value)}
                           className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
@@ -406,7 +406,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                         <input
                           type="email"
                           required
-                          placeholder="john@example.com"
+                          placeholder="ramarao@example.com"
                           value={patEmail}
                           onChange={(e) => setPatEmail(e.target.value)}
                           className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
@@ -466,7 +466,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                         <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Occupation</label>
                         <input
                           type="text"
-                          placeholder="Manager"
+                          placeholder="Steel Plant Engineer"
                           value={patOccupation}
                           onChange={(e) => setPatOccupation(e.target.value)}
                           className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"
@@ -478,7 +478,7 @@ export default function DoctorDashboard({ token, formatPrice, activeTab }: Docto
                       <label className="block text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase mb-0.5">Address</label>
                       <input
                         type="text"
-                        placeholder="City, Country"
+                        placeholder="MVP Colony, Visakhapatnam"
                         value={patAddress}
                         onChange={(e) => setPatAddress(e.target.value)}
                         className="w-full text-xs py-1.5 px-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none focus:border-[#0D9488]"

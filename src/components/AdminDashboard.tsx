@@ -571,7 +571,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                       <input
                         type="text"
                         required
-                        placeholder="John Doe"
+                        placeholder="G. Rama Rao"
                         value={patName}
                         onChange={(e) => setPatName(e.target.value)}
                         className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
@@ -659,7 +659,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                     <label className="block text-[10px] font-bold text-slate-500 dark:text-slate-450 uppercase mb-1">Home Address</label>
                     <input
                       type="text"
-                      placeholder="123 Main St, City"
+                      placeholder="Dwaraka Nagar, Visakhapatnam"
                       value={patAddress}
                       onChange={(e) => setPatAddress(e.target.value)}
                       className="w-full text-xs h-10 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
@@ -787,7 +787,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                   <input
                     type="text"
                     required
-                    placeholder="Dr. John Watson"
+                    placeholder="Dr. Srinivas Rao"
                     value={docName}
                     onChange={(e) => setDocName(e.target.value)}
                     className="w-full py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"
@@ -799,7 +799,7 @@ export default function AdminDashboard({ token, formatPrice, currency, activeTab
                   <input
                     type="email"
                     required
-                    placeholder="watson@hospital.com"
+                    placeholder="srinivas@hospital.com"
                     value={docEmail}
                     onChange={(e) => setDocEmail(e.target.value)}
                     className="w-full py-2.5 px-3 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 text-slate-800 dark:text-white focus:outline-none"

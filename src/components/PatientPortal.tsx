@@ -684,7 +684,7 @@ export default function PatientPortal({ token, user, formatPrice, activeTab, onU
               <input
                 id="profile-address"
                 type="text"
-                placeholder="e.g. 123 Main St, Springfield"
+                placeholder="e.g. MVP Colony, Visakhapatnam"
                 value={profileAddress}
                 onChange={(e) => setProfileAddress(e.target.value)}
                 className="w-full text-xs py-2 px-3 border border-[#E2E8F0] dark:border-slate-800 bg-white dark:bg-slate-900/50 text-slate-800 dark:text-white rounded-xl focus:outline-none focus:border-[#0D9488] focus:dark:border-[#0D9488]"

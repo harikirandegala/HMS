@@ -146,7 +146,7 @@ export default function AuthPage({ onLoginSuccess }: AuthPageProps) {
                       id="reg-name"
                       type="text"
                       required
-                      placeholder="Johnathan Doe"
+                      placeholder="G. Rama Rao"
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       className="w-full pl-10 pr-3 py-2.5 border border-[#E2E8F0] dark:border-slate-800 rounded-xl bg-white dark:bg-slate-900/60 focus:outline-none focus:border-[#0D9488] text-sm text-slate-900 dark:text-white transition-colors"

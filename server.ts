@@ -124,6 +124,7 @@ interface DbSchema {
 }
 
 // Initial seed data if DB_FILE doesn't exist
+// Initial seed data if DB_FILE doesn't exist
 const initialSeed: DbSchema = {
   users: [
     {
@@ -131,7 +132,7 @@ const initialSeed: DbSchema = {
       email: 'admin@hospital.com',
       passwordHash: 'Admin123',
       role: 'admin',
-      fullName: 'Sarah Jenkins (Directress)',
+      fullName: 'K. Suhasini (Directress)',
       avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=200',
       createdAt: new Date().toISOString()
     },
@@ -140,16 +141,16 @@ const initialSeed: DbSchema = {
       email: 'doctor@hospital.com',
       passwordHash: 'Doctor123',
       role: 'doctor',
-      fullName: 'Dr. Alexander Sterling',
+      fullName: 'Dr. Srinivas Rao',
       avatarUrl: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=200',
       createdAt: new Date().toISOString()
     },
     {
       id: 'u-doctor-2',
-      email: 'elena@hospital.com',
+      email: 'sridevi@hospital.com',
       passwordHash: 'Doctor123',
       role: 'doctor',
-      fullName: 'Dr. Elena Rostova',
+      fullName: 'Dr. P. Sridevi',
       avatarUrl: 'https://images.unsplash.com/photo-1594824813573-246434e33963?auto=format&fit=crop&q=80&w=200',
       createdAt: new Date().toISOString()
     },
@@ -158,7 +159,7 @@ const initialSeed: DbSchema = {
       email: 'patient@hospital.com',
       passwordHash: 'Patient123',
       role: 'patient',
-      fullName: 'Arthur Dent',
+      fullName: 'G. Rama Rao',
       avatarUrl: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
       createdAt: new Date().toISOString()
     }
@@ -166,7 +167,7 @@ const initialSeed: DbSchema = {
   doctors: [
     {
       id: 'u-doctor',
-      fullName: 'Dr. Alexander Sterling',
+      fullName: 'Dr. Srinivas Rao',
       email: 'doctor@hospital.com',
       specialization: 'Cardiology',
       departmentName: 'Cardiovascular Wellness',
@@ -177,8 +178,8 @@ const initialSeed: DbSchema = {
     },
     {
       id: 'u-doctor-2',
-      fullName: 'Dr. Elena Rostova',
-      email: 'elena@hospital.com',
+      fullName: 'Dr. P. Sridevi',
+      email: 'sridevi@hospital.com',
       specialization: 'Neurology',
       departmentName: 'Neuroscience Division',
       schedule: {
@@ -190,24 +191,24 @@ const initialSeed: DbSchema = {
   patients: [
     {
       id: 'u-patient',
-      fullName: 'Arthur Dent',
+      fullName: 'G. Rama Rao',
       email: 'patient@hospital.com',
       dob: '1979-10-12',
       gender: 'Male',
-      insuranceNo: 'INS-99482-B',
-      medicalHistorySummary: 'Mild hypertension, chronic dry skin symptoms, non-smoker.',
+      insuranceNo: 'INS-88492-AP',
+      medicalHistorySummary: 'Mild hypertension, non-smoker, lives in Visakhapatnam.',
       age: 47,
-      occupation: 'Journalist',
-      address: '15 Country Lane, Cottington'
+      occupation: 'Steel Plant Engineer',
+      address: 'Flat 402, Balaji Heights, MVP Colony, Sector 3, Visakhapatnam, AP - 530017'
     }
   ],
   appointments: [
     {
       id: 'apt-1',
       patientId: 'u-patient',
-      patientName: 'Arthur Dent',
+      patientName: 'G. Rama Rao',
       doctorId: 'u-doctor',
-      doctorName: 'Dr. Alexander Sterling',
+      doctorName: 'Dr. Srinivas Rao',
       startTime: '2026-06-08T09:00:00.000Z',
       status: 'confirmed',
       reason: 'Routine cardiovascular check-up for blood pressure tracking.',
@@ -216,9 +217,9 @@ const initialSeed: DbSchema = {
     {
       id: 'apt-2',
       patientId: 'u-patient',
-      patientName: 'Arthur Dent',
+      patientName: 'G. Rama Rao',
       doctorId: 'u-doctor-2',
-      doctorName: 'Dr. Elena Rostova',
+      doctorName: 'Dr. P. Sridevi',
       startTime: '2026-06-12T11:30:00.000Z',
       status: 'pending',
       reason: 'Persistent mild headaches during computer work sessions.',
@@ -229,10 +230,10 @@ const initialSeed: DbSchema = {
     {
       id: 'rec-1',
       patientId: 'u-patient',
-      doctorName: 'Dr. Alexander Sterling',
+      doctorName: 'Dr. Srinivas Rao',
       date: '2026-05-15',
       diagnosis: 'Controlled Stage 1 Essential Hypertension',
-      notes: 'Patient reports steady stamina. Advised reducing sodium intake. Scheduled ECG test for next quarterly review.',
+      notes: 'Patient reports steady stamina. Advised morning walks along RK Beach. Scheduled ECG test for next quarterly review.',
       prescriptions: ['Lisinopril 10mg - Once daily morning', 'Amlodipine 5mg - As needed for spike readings'],
       vitals: {
         bloodPressure: '132/84 mmHg',
@@ -246,8 +247,8 @@ const initialSeed: DbSchema = {
     {
       id: 'inv-1',
       patientId: 'u-patient',
-      patientName: 'Arthur Dent',
-      description: 'First Consultation Fee - Dr. Alexander Sterling',
+      patientName: 'G. Rama Rao',
+      description: 'First Consultation Fee - Dr. Srinivas Rao',
       amount: 150.00,
       status: 'paid',
       createdAt: '2026-05-15T10:30:00.000Z',
@@ -256,8 +257,8 @@ const initialSeed: DbSchema = {
     {
       id: 'inv-2',
       patientId: 'u-patient',
-      patientName: 'Arthur Dent',
-      description: 'Prescription Dispensing & Hospital Surcharge',
+      patientName: 'G. Rama Rao',
+      description: 'Prescription Dispensing & Visakhapatnam Care Surcharge',
       amount: 45.50,
       status: 'unpaid',
       createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString()
@@ -316,8 +317,21 @@ async function loadDatabase() {
           throw error;
         }
       } else if (data) {
-        dbData = data.data as DbSchema;
-        console.log('[DATABASE] Successfully loaded state from Supabase.');
+        let loadedData = data.data as DbSchema;
+        // Check if it's the old dataset containing 'Sarah Jenkins' or 'Arthur Dent' or 'Alexander Sterling'
+        const hasOldData = loadedData.users.some(u => 
+          u.fullName.includes('Sarah Jenkins') || 
+          u.fullName.includes('Arthur Dent') || 
+          u.fullName.includes('Alexander Sterling')
+        );
+        if (hasOldData) {
+          console.log('[DATABASE] Detected legacy seed data. Upgrading database state to Visakhapatnam localization...');
+          dbData = initialSeed;
+          await saveDatabase(initialSeed);
+        } else {
+          dbData = loadedData;
+          console.log('[DATABASE] Successfully loaded state from Supabase.');
+        }
       }
     } catch (e) {
       console.error('[DATABASE] Supabase load error. Falling back to local server_db.json...', e);
@@ -865,7 +879,7 @@ app.post('/api/patients/:id/records', (req, res) => {
   const newInvoice = {
     id: invoiceId,
     patientId,
-    patientName: patient ? patient.fullName : 'Arthur Dent',
+    patientName: patient ? patient.fullName : 'G. Rama Rao',
     description: `Specialist Consultation and Care - ${user.fullName}`,
     amount: 150.00,
     status: 'unpaid' as const,
